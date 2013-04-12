@@ -1,0 +1,5 @@
+-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 
+-I C:\Keil\ARM\RV31\INC 
+-I C:\Keil\ARM\CMSIS\Include 
+-I C:\Keil\ARM\Device\Nordic\nRF51822\Include 
+-DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_acc.o" --omf_browse ".\_build\ble_acc.crf" --depend ".\_build\ble_acc.d" "..\ble_acc.c"

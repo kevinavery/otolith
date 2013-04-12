@@ -1,0 +1,39 @@
+*** Creating Trace Output File '.\_build\ble_app_proximity.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\_build\arm_startup_nrf51.o"'
+### List of Objects: adding '".\_build\system_nrf51.o"'
+### List of Objects: adding '".\_build\main.o"'
+### List of Objects: adding '".\_build\ble_tps.o"'
+### List of Objects: adding '".\_build\ble_ias.o"'
+### List of Objects: adding '".\_build\ble_lls.o"'
+### List of Objects: adding '".\_build\ble_bas.o"'
+### List of Objects: adding '".\_build\ble_ias_c.o"'
+### List of Objects: adding '".\_build\ble_advdata.o"'
+### List of Objects: adding '".\_build\ble_srv_common.o"'
+### List of Objects: adding '".\_build\ble_conn_params.o"'
+### List of Objects: adding '".\_build\app_timer.o"'
+### List of Objects: adding '".\_build\ble_stack_handler.o"'
+### List of Objects: adding '".\_build\ble_bondmngr.o"'
+### List of Objects: adding '".\_build\ble_flash.o"'
+### List of Objects: adding '".\_build\app_button.o"'
+### List of Objects: adding '".\_build\ble_radio_notification.o"'
+### List of Objects: adding '".\_build\app_gpiote.o"'
+### List of Objects: adding '".\_build\ble_error_log.o"'
+### List of Objects: adding '".\_build\ble_debug_assert_handler.o"'
+### ADS-LD Command completed:
+--cpu Cortex-M0 ".\_build\arm_startup_nrf51.o" ".\_build\system_nrf51.o" ".\_build\main.o" ".\_build\ble_tps.o" ".\_build\ble_ias.o" ".\_build\ble_lls.o" ".\_build\ble_bas.o" ".\_build\ble_ias_c.o" ".\_build\ble_advdata.o" ".\_build\ble_srv_common.o" ".\_build\ble_conn_params.o" ".\_build\app_timer.o" ".\_build\ble_stack_handler.o" ".\_build\ble_bondmngr.o" ".\_build\ble_flash.o" ".\_build\app_button.o" ".\_build\ble_radio_notification.o" ".\_build\app_gpiote.o" ".\_build\ble_error_log.o" ".\_build\ble_debug_assert_handler.o" 
+--strict --scatter ".\_build\ble_app_proximity.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\_build\ble_app_proximity.map" -o .\_build\ble_app_proximity.axf### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\_build\ble_app_proximity.axf'
+### ADS-LD Command File: '.\_build\ble_app_proximity.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\_build\ble_app_proximity.lnp', Handle=0x00000B2C
+### Writing '.lnp' file
+### ADS-LD Command file '.\_build\ble_app_proximity.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

@@ -1,0 +1,40 @@
+*** Creating Trace Output File '.\_build\ble_app_hrs.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\_build\arm_startup_nrf51.o"'
+### List of Objects: adding '".\_build\system_nrf51.o"'
+### List of Objects: adding '".\_build\main.o"'
+### List of Objects: adding '".\_build\battery.o"'
+### List of Objects: adding '".\_build\led.o"'
+### List of Objects: adding '".\_build\ble_dis.o"'
+### List of Objects: adding '".\_build\ble_bas.o"'
+### List of Objects: adding '".\_build\ble_hrs.o"'
+### List of Objects: adding '".\_build\ble_acc.o"'
+### List of Objects: adding '".\_build\ble_conn_params.o"'
+### List of Objects: adding '".\_build\ble_advdata.o"'
+### List of Objects: adding '".\_build\ble_srv_common.o"'
+### List of Objects: adding '".\_build\app_timer.o"'
+### List of Objects: adding '".\_build\ble_stack_handler.o"'
+### List of Objects: adding '".\_build\ble_bondmngr.o"'
+### List of Objects: adding '".\_build\ble_flash.o"'
+### List of Objects: adding '".\_build\app_button.o"'
+### List of Objects: adding '".\_build\ble_radio_notification.o"'
+### List of Objects: adding '".\_build\app_gpiote.o"'
+### List of Objects: adding '".\_build\ble_error_log.o"'
+### List of Objects: adding '".\_build\ble_debug_assert_handler.o"'
+### ADS-LD Command completed:
+--cpu Cortex-M0 ".\_build\arm_startup_nrf51.o" ".\_build\system_nrf51.o" ".\_build\main.o" ".\_build\battery.o" ".\_build\led.o" ".\_build\ble_dis.o" ".\_build\ble_bas.o" ".\_build\ble_hrs.o" ".\_build\ble_acc.o" ".\_build\ble_conn_params.o" ".\_build\ble_advdata.o" ".\_build\ble_srv_common.o" ".\_build\app_timer.o" ".\_build\ble_stack_handler.o" ".\_build\ble_bondmngr.o" ".\_build\ble_flash.o" ".\_build\app_button.o" ".\_build\ble_radio_notification.o" ".\_build\app_gpiote.o" ".\_build\ble_error_log.o" ".\_build\ble_debug_assert_handler.o" 
+--strict --scatter ".\_build\ble_app_hrs.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\_build\ble_app_hrs.map" -o .\_build\ble_app_hrs.axf### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\_build\ble_app_hrs.axf'
+### ADS-LD Command File: '.\_build\ble_app_hrs.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\_build\ble_app_hrs.lnp', Handle=0x000002EC
+### Writing '.lnp' file
+### ADS-LD Command file '.\_build\ble_app_hrs.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.
