@@ -12,7 +12,7 @@
 #ifndef SPI_MASTER_CONFIG_H
 #define SPI_MASTER_CONFIG_H
 
-#define SPI_OPERATING_FREQUENCY  ( 0x02000000UL << (uint32_t)Freq_4Mbps)  /*!< Slave clock frequency. */
+#define SPI_OPERATING_FREQUENCY  ( 0x02000000UL << (uint32_t)Freq_1Mbps)  /*!< Slave clock frequency. */
 
 /*  SPI0 */
 #define SPI_PSELSCK0              12   /*!< GPIO pin number for SPI clock (note that setting this to 31 will only work for loopback purposes as it not connected to a pin) */

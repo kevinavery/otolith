@@ -96,18 +96,24 @@ int main(void)
 {
   simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
 
+	uint8_t temp[4];
 	uint8_t cr = simple_uart_get();
 	acc_init();
 	simple_uart_putstring("Starting...\r\n");
 	
   while(true)
   {
-		uint8_t cr = simple_uart_get();
+	//	uint8_t cr = simple_uart_get();
 		
-		acc_data_t* acc = update_acc_data();
-		printData("X: ", acc->x);
-		//printData("Y: ", acc->y);
-		//printData("Z: ", acc->z);
+	//	if(!read_register(ADXL345_FIFO_STATUS, 2, temp))
+	//		printData("Status: ", temp[1]);
+		int i;
+	//	for(i = 0; i < 20; i++) {
+			acc_data_t* acc = update_acc_data();
+			printData("X: ", acc->x);
+//			printData("Y: ", acc->y);
+//			printData("Z: ", acc->z);
+//		}
 		
     if(cr == 'q' || cr == 'Q')
     {
