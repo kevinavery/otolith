@@ -2,15 +2,15 @@
 #include <math.h>
 #include <stdlib.h>
 
-int SAMPLE_SIZE = 25;
-int SAMPLE_RATE = 50;
+#define SAMPLE_SIZE 25
+#define SAMPLE_RATE 50
 #define PI 3.14159265
 #define X 0
 #define Y 4
 #define Z 8
 #define GET_FIELD(acc_data_p, field) *((int*)((char*)(acc_data_p) + field))
-// #define MAX(a, b) (a > b) ? a : b
-// #define MIN(a, b) (a < b) ? a : b
+#define MAX_STEP_FREQ 5.0
+#define MIN_STEP_FREQ 0.5
 
 
 // data array contains an array of structs
@@ -27,12 +27,12 @@ typedef struct {
   int axis;
 } measurements;
 
-inline int MAX(int a , int b)
+inline int max_of(int a, int b)
 {
   return (a > b) ? a : b; 
 }
 
-inline int MIN(int a , int b)
+inline int min_of(int a, int b)
 {
   return (a < b) ? a : b; 
 }
@@ -110,36 +110,63 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
                      data[i].z);
   
   for(i = 1; i < size; i++) {
-    set_acc_data(&max, MAX(max.x, data[i].x),
-                       MAX(max.y, data[i].y), 
-                       MAX(max.z, data[i].z));
+    set_acc_data(&max, max_of(max.x, data[i].x),
+                       max_of(max.y, data[i].y), 
+                       max_of(max.z, data[i].z));
     
-    set_acc_data(&min, MIN(min.x, data[i].x), 
-                       MIN(min.y, data[i].y), 
-                       MIN(min.z, data[i].z));
+    set_acc_data(&min, min_of(min.x, data[i].x), 
+                       min_of(min.y, data[i].y), 
+                       min_of(min.z, data[i].z));
   }
 
-  printf("MAXX: %d\n", max.x);
-  printf("MINX: %d\n", min.x);
-
   measure->axis = max_axis_offset(max.x - min.x, max.y - min.y, max.z - min.z);
-  // measure->max =  GET_FIELD(&max, measure->axis);
-  // measure->min =  GET_FIELD(&min, measure->axis);
   measure->max =  GET_FIELD(&max, 0);
   measure->min =  GET_FIELD(&min, 0);
-  measure->threshold = (measure->max + measure->min)/2;
+  measure->threshold = (measure->max + measure->min) >> 1;
 
+}
+
+int get_steps(int steps) {
+  int max_steps, min_steps;
+  max_steps = MAX_STEP_FREQ * (SAMPLE_SIZE / SAMPLE_RATE);
+  min_steps = MIN_STEP_FREQ * (SAMPLE_SIZE / SAMPLE_RATE);
+  return (steps <= max_steps && steps >= min_steps) ? steps : 0;
+}
+
+int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
+  int i, sample_new, sample_old, result, steps, last_step;
+  sample_new = measure->min;
+  sample_old = measure->min;
+  steps = 0;
+
+  for(i = 0; i < size; i++) {
+    result = GET_FIELD((acc_data_array + i), measure->axis);
+    if(result > measure->threshold) {
+      // data is above the threshold, shift into new
+      sample_old = sample_new;
+      sample_new = result;
+      // look to see if new is less than old (we are on a down slope)
+      if(sample_new < sample_old) {
+        // we are on a down slope
+        steps++;
+        printf("Counted step i:%d Sample_old:%d Sample_new:%d\n", i, sample_old, sample_new);
+      }
+    } else {
+      // move new into old
+      sample_old = sample_new;
+    }
+  }
+
+  return get_steps(steps);
 }
 
 int main() {
   measurements measure;
   acc_data_t *acc_arr = malloc(sizeof(acc_data_t) * SAMPLE_SIZE);  
   fake_acc_data_array(acc_arr, SAMPLE_SIZE, 5);
-  
   filter(acc_arr, SAMPLE_SIZE);
   get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-  
+  printf("counted %d steps\n", count_steps(&measure, acc_arr, SAMPLE_SIZE));
   print_measure_data(&measure);
-
   return 0;
 }
