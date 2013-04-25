@@ -2,8 +2,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define SAMPLE_SIZE 25
-#define SAMPLE_RATE 50
+#define SAMPLE_SIZE 300.0
+#define SAMPLE_RATE 50.0
 #define PI 3.14159265
 #define X 0
 #define Y 4
@@ -25,6 +25,7 @@ typedef struct {
   int max;
   int min;
   int axis;
+  int precision;
 } measurements;
 
 inline int max_of(int a, int b)
@@ -37,12 +38,13 @@ inline int min_of(int a, int b)
   return (a < b) ? a : b; 
 }
 
-void fake_acc_data_array(acc_data_t *acc_data_array, int size, double freq) {
+void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
   int i;
   for(i = 0; i < size; i++) {
     acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
     acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
     acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+    printf("cycles: %f\n", ((freq/SAMPLE_RATE) * i) );
   }
 }
  
@@ -71,6 +73,7 @@ void print_measure_data(measurements* measure) {
     printf("MAX: %d ", measure->max);
     printf("MIN: %d \n", measure->min);
     printf("THRESHOLD: %d \n", measure->threshold);
+    printf("PRECISION: %d \n", measure->precision);
 }
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
@@ -123,37 +126,46 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   measure->max =  GET_FIELD(&max, 0);
   measure->min =  GET_FIELD(&min, 0);
   measure->threshold = (measure->max + measure->min) >> 1;
-
+  // distance from threshold to max + distance from threshold to min / 4
+  measure->precision = ((measure->max - measure->min) - (measure->threshold<<1))>>4;
 }
 
 int get_steps(int steps) {
-  int max_steps, min_steps;
-  max_steps = MAX_STEP_FREQ * (SAMPLE_SIZE / SAMPLE_RATE);
-  min_steps = MIN_STEP_FREQ * (SAMPLE_SIZE / SAMPLE_RATE);
-  return (steps <= max_steps && steps >= min_steps) ? steps : 0;
+  float max_steps, min_steps;
+  float secs = (SAMPLE_SIZE / SAMPLE_RATE);
+  max_steps = MAX_STEP_FREQ * secs;
+  min_steps = MIN_STEP_FREQ * secs;
+ return (steps <= max_steps && steps >= min_steps) ? steps : 0;
 }
 
 int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
-  int i, sample_new, sample_old, result, steps, last_step;
-  sample_new = measure->min;
-  sample_old = measure->min;
+  int i, sample_above, above_taken, sample_below, below_taken, result, steps, last_step, thresh;
+  sample_above = measure->min;
+  above_taken  = 0;
+  sample_below = measure->max;
+  below_taken  = 0;
+  thresh = measure->threshold;
   steps = 0;
 
   for(i = 0; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
-    if(result > measure->threshold) {
-      // data is above the threshold, shift into new
-      sample_old = sample_new;
-      sample_new = result;
-      // look to see if new is less than old (we are on a down slope)
-      if(sample_new < sample_old) {
-        // we are on a down slope
-        steps++;
-        printf("Counted step i:%d Sample_old:%d Sample_new:%d\n", i, sample_old, sample_new);
-      }
-    } else {
-      // move new into old
-      sample_old = sample_new;
+    
+
+    if(result > thresh) {
+      // take a sample above the thresh
+      sample_above = result;
+      above_taken = 1;
+
+    } else if((result < thresh) && above_taken) {
+      sample_below = result;
+      below_taken = 1;
+
+    }
+    if(below_taken && above_taken && ((sample_above - sample_below) > measure->precision)) {
+      steps++;
+      printf("Counted step i:%d Sample_abov:%d Sample_below:%d cycles: %f\n", i, sample_above, sample_below, ((5.00/SAMPLE_RATE) * i));
+      above_taken = 0;
+      below_taken = 0;
     }
   }
 
