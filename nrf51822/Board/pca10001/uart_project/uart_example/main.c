@@ -38,13 +38,40 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "nrf.h"
+#include "nrf_gpio.h"
+#include "nrf_gpiote.h"
 #include "simple_uart.h"
 #include "acc_driver.h"
-#include "nrf_gpio.h"
 #include "boards.h"
 
+/*!< Pin number to used for ADNS2080 motion interrupt. If you change 
+    this, also remember to change the pin configuration in the main 
+    function. */
+#define FIFO_INTERRUPT_PIN_NUMBER (26) 
 
+void gpiote_init(void) {
 
+    // Configure fifo interrupt pin
+    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_PULLDOWN);
+    
+    // Configure GPIOTE channel 0 to generate event when 
+    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    
+    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+}
+
+/** GPIOTE interrupt handler.
+* Triggered on motion interrupt pin input low-to-high transition.
+*/
+void GPIOTE_IRQHandler(void)
+{
+  
+
+  // Event causing the interrupt must be cleared
+  NRF_GPIOTE->EVENTS_IN[0] = 0;
+}
 
 void itoa(int num, uint8_t *buf, int buf_len)
 {
