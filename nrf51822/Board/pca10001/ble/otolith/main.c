@@ -27,11 +27,9 @@
 #include "ble_radio_notification.h"
 #include "ble_flash.h"
 #include "ble_debug_assert_handler.h"
-#include "simple_uart.h"
+#include "util.h"
 
-
-//#define HR_INC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_0                      
-//#define HR_DEC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_1                       
+                     
 #define BONDMNGR_DELETE_BUTTON_PIN_NO        EVAL_BOARD_BUTTON_1                      /**< Button used for deleting all bonded masters during startup. */
 
 #define DEVICE_NAME                          "Otolith"                                 /**< Name of device. Will be included in the advertising data. */
@@ -135,11 +133,6 @@ static void bond_manager_error_handler(uint32_t nrf_error)
     APP_ERROR_HANDLER(nrf_error);
 }
 
-void mlog(const char * msg)
-{
-	simple_uart_putstring((const uint8_t *)msg);
-}
-
 
 /**@brief Button event handler.
  *
@@ -149,7 +142,7 @@ static void button_event_handler(uint8_t pin_no)
 {
     static uint8_t cur_step_count = 0;
 	
-	  mlog("Button pressed!\r\n");
+	  mlog_str("Button pressed!\r\n");
 	
     switch (pin_no)
     {
@@ -171,13 +164,6 @@ static void button_event_handler(uint8_t pin_no)
 /*****************************************************************************
 * Static Initialization Functions
 *****************************************************************************/
-
-
-static void uart_init(void)
-{
-	simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
-}
-
 
 /**@brief Timer initialization.
  *
@@ -524,12 +510,12 @@ int main(void)
 {
     uint32_t err_code;
 		
-	  uart_init();
+	  mlog_init();
     timers_init();
     gpiote_init();
     buttons_init();
 
-	  mlog("Starting...\r\n");
+	  mlog_str("Starting...\r\n");
 	
     if (is_first_start())
     {
