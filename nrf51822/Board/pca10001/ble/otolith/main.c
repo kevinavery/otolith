@@ -30,9 +30,9 @@
 #include "simple_uart.h"
 
 
-#define HR_INC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_0                      
-#define HR_DEC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_1                       
-#define BONDMNGR_DELETE_BUTTON_PIN_NO        HR_DEC_BUTTON_PIN_NO                      /**< Button used for deleting all bonded masters during startup. */
+//#define HR_INC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_0                      
+//#define HR_DEC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_1                       
+#define BONDMNGR_DELETE_BUTTON_PIN_NO        EVAL_BOARD_BUTTON_1                      /**< Button used for deleting all bonded masters during startup. */
 
 #define DEVICE_NAME                          "Otolith"                                 /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME                    "NordicSemiconductor"                     /**< Manufacturer. Will be passed to Device Information Service. */
@@ -135,7 +135,7 @@ static void bond_manager_error_handler(uint32_t nrf_error)
     APP_ERROR_HANDLER(nrf_error);
 }
 
-static void log(const char * msg)
+void mlog(const char * msg)
 {
 	simple_uart_putstring((const uint8_t *)msg);
 }
@@ -147,18 +147,19 @@ static void log(const char * msg)
  */
 static void button_event_handler(uint8_t pin_no)
 {
-    static uint8_t cur_step_count = 5;
+    static uint8_t cur_step_count = 0;
 	
-	  log("Button pressed!\r\n");
+	  mlog("Button pressed!\r\n");
 	
     switch (pin_no)
     {
-        case HR_INC_BUTTON_PIN_NO:
+        case EVAL_BOARD_BUTTON_0:
             ble_oto_send_step_count(&m_oto, cur_step_count);
+				    cur_step_count = 0;
             break;
             
-        case HR_DEC_BUTTON_PIN_NO:
-					  cur_step_count += 5;
+        case EVAL_BOARD_BUTTON_1:
+					  cur_step_count += 1;
             break;
             
         default:
@@ -266,10 +267,10 @@ static void services_init(void)
     uint32_t       err_code;
     ble_oto_init_t oto_init;
 
-    // Initialize Battery Service
+    // Initialize Otolith Service
     memset(&oto_init, 0, sizeof(oto_init));
 
-    // Here the sec level for the Battery Service can be changed/increased.
+    // Here the sec level for the Otolith Service can be changed/increased.
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_char_attr_md.cccd_write_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_char_attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&oto_init.step_count_char_attr_md.write_perm);
@@ -277,8 +278,6 @@ static void services_init(void)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_report_read_perm);
 
     oto_init.evt_handler          = NULL;
-    oto_init.support_notification = true;
-    oto_init.p_report_ref         = NULL;
     oto_init.initial_step_count   = 42;
 
     err_code = ble_oto_init(&m_oto, &oto_init);
@@ -384,13 +383,13 @@ static void gpiote_init(void)
  */
 static void buttons_init(void)
 {
-    // Configure HR_INC_BUTTON_PIN_NO and HR_DEC_BUTTON_PIN_NO as wake up buttons and also configure
+    // Configure EVAL_BOARD_BUTTON_0 and EVAL_BOARD_BUTTON_1 as wake up buttons and also configure
     // for 'pull up' because the eval board does not have external pull up resistors connected to
     // the buttons.
     static app_button_cfg_t buttons[] =
     {
-        {HR_INC_BUTTON_PIN_NO, false, NRF_GPIO_PIN_PULLUP, button_event_handler},
-        {HR_DEC_BUTTON_PIN_NO, false, NRF_GPIO_PIN_PULLUP, button_event_handler}  // Note: This pin is also BONDMNGR_DELETE_BUTTON_PIN_NO
+        {EVAL_BOARD_BUTTON_0, false, NRF_GPIO_PIN_PULLUP, button_event_handler},
+        {EVAL_BOARD_BUTTON_1, false, NRF_GPIO_PIN_PULLUP, button_event_handler}  // Note: This pin is also BONDMNGR_DELETE_BUTTON_PIN_NO
     };
     
     APP_BUTTON_INIT(buttons, sizeof(buttons) / sizeof(buttons[0]), BUTTON_DETECTION_DELAY, false);
@@ -405,10 +404,10 @@ static bool is_first_start(void)
     bool     inc_button_pushed;
     bool     dec_button_pushed;
     
-    err_code = app_button_is_pushed(HR_INC_BUTTON_PIN_NO, &inc_button_pushed);
+    err_code = app_button_is_pushed(EVAL_BOARD_BUTTON_0, &inc_button_pushed);
     APP_ERROR_CHECK(err_code);
     
-    err_code = app_button_is_pushed(HR_DEC_BUTTON_PIN_NO, &dec_button_pushed);
+    err_code = app_button_is_pushed(EVAL_BOARD_BUTTON_1, &dec_button_pushed);
     APP_ERROR_CHECK(err_code);
     
     return (!inc_button_pushed && !dec_button_pushed);
@@ -530,7 +529,7 @@ int main(void)
     gpiote_init();
     buttons_init();
 
-	  log("Starting...\r\n");
+	  mlog("Starting...\r\n");
 	
     if (is_first_start())
     {
@@ -538,8 +537,8 @@ int main(void)
         // Go into System-Off mode.
         // NOTE: This register cannot be set directly after ble_stack_init() because the SoftDevice
         //       will be enabled.
-        GPIO_WAKEUP_BUTTON_CONFIG(HR_INC_BUTTON_PIN_NO);
-        GPIO_WAKEUP_BUTTON_CONFIG(HR_DEC_BUTTON_PIN_NO);
+        GPIO_WAKEUP_BUTTON_CONFIG(EVAL_BOARD_BUTTON_0);
+        GPIO_WAKEUP_BUTTON_CONFIG(EVAL_BOARD_BUTTON_1);
         NRF_POWER->SYSTEMOFF = 1;
     }
 

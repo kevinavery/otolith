@@ -35,8 +35,6 @@ typedef void (*ble_oto_evt_handler_t) (ble_oto_t * p_oto, ble_oto_evt_t * p_evt)
 typedef struct
 {
     ble_oto_evt_handler_t         evt_handler;                    /**< Event handler to be called for handling events in the Otolith Service. */
-    bool                          support_notification;           /**< TRUE if notification of Step Count is supported. */
-    ble_srv_report_ref_t *        p_report_ref;                   /**< If not NULL, a Report Reference descriptor with the specified value will be added to the Step Count characteristic */
     uint8_t                       initial_step_count;            
     ble_srv_cccd_security_mode_t  step_count_char_attr_md;        /**< Initial security level for step count characteristics attribute */
     ble_gap_conn_sec_mode_t       step_count_report_read_perm;    /**< Initial security level for step count report read attribute */
@@ -48,7 +46,6 @@ typedef struct ble_oto_s
     ble_oto_evt_handler_t         evt_handler;                    /**< Event handler to be called for handling events in the Otolith Service. */
     uint16_t                      service_handle;                 /**< Handle of Otolith Service (as provided by the BLE stack). */
     ble_gatts_char_handles_t      step_count_handles;             /**< Handles related to the Step Count characteristic. */
-    uint16_t                      report_ref_handle;              /**< Handle of the Report Reference descriptor. */
     uint16_t                      conn_handle;                    /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     bool                          is_notification_supported;      /**< TRUE if notification of Step Count is supported. */
 } ble_oto_t;

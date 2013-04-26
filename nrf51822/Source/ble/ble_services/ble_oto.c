@@ -4,6 +4,7 @@
 #include "nordic_common.h"
 #include "ble_srv_common.h"
 #include "app_util.h"  
+#include "main.h" // for debug logging
 
 
 /**@brief Connect event handler.
@@ -85,33 +86,27 @@ void ble_oto_on_ble_evt(ble_oto_t * p_oto, ble_evt_t * p_ble_evt)
  */
 static uint32_t oto_char_add(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_init)
 {
-    uint32_t            err_code;
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
     ble_gatts_attr_t    attr_char_value;
     ble_uuid_t          ble_uuid;
     ble_gatts_attr_md_t attr_md;
 	  uint8_t             initial_step_count;
-    uint8_t             encoded_report_ref[BLE_SRV_ENCODED_REPORT_REF_LEN];
     
-    // Add Step Count characteristic
-    if (p_oto->is_notification_supported)
-    {
-        memset(&cccd_md, 0, sizeof(cccd_md));
+    memset(&cccd_md, 0, sizeof(cccd_md));
         
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-        cccd_md.write_perm = p_oto_init->step_count_char_attr_md.cccd_write_perm;
-        cccd_md.vloc = BLE_GATTS_VLOC_STACK;
-    }
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    cccd_md.write_perm = p_oto_init->step_count_char_attr_md.cccd_write_perm;
+    cccd_md.vloc = BLE_GATTS_VLOC_STACK;
     
     memset(&char_md, 0, sizeof(char_md));
     
     char_md.char_props.read   = 1;
-    char_md.char_props.notify = (p_oto->is_notification_supported) ? 1 : 0;
+    char_md.char_props.notify = 1;
     char_md.p_char_user_desc  = NULL;
     char_md.p_char_pf         = NULL;
     char_md.p_user_desc_md    = NULL;
-    char_md.p_cccd_md         = (p_oto->is_notification_supported) ? &cccd_md : NULL;
+    char_md.p_cccd_md         = &cccd_md;
     char_md.p_sccd_md         = NULL;
     
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_STEP_COUNT_CHAR);
@@ -136,18 +131,10 @@ static uint32_t oto_char_add(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_ini
     attr_char_value.max_len      = sizeof(uint8_t);
     attr_char_value.p_value      = &initial_step_count;
     
-    err_code = sd_ble_gatts_characteristic_add(p_oto->service_handle, &char_md,
-                                               &attr_char_value,
-                                               &p_oto->step_count_handles);
-    if (err_code != NRF_SUCCESS)
-    {
-        return err_code;
-    }
-
-    // Not sure if this is necessary...
-    p_oto->report_ref_handle = BLE_GATT_HANDLE_INVALID;
-    
-    return NRF_SUCCESS;
+    return sd_ble_gatts_characteristic_add(p_oto->service_handle, 
+		                                       &char_md,
+                                           &attr_char_value,
+                                           &p_oto->step_count_handles);
 }
 
 
@@ -159,7 +146,6 @@ uint32_t ble_oto_init(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_init)
     // Initialize service structure
     p_oto->evt_handler               = p_oto_init->evt_handler;
     p_oto->conn_handle               = BLE_CONN_HANDLE_INVALID;
-    p_oto->is_notification_supported = p_oto_init->support_notification;
     
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_OTOLITH_SERVICE);
@@ -178,31 +164,21 @@ uint32_t ble_oto_init(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_init)
 uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count)
 {
     uint32_t err_code = NRF_SUCCESS;
-
-    uint16_t len = sizeof(uint8_t);
-    
-    // Update database
-    err_code = sd_ble_gatts_value_set(p_oto->step_count_handles.value_handle,
-                                      0,
-                                      &len,
-                                      &step_count);
-    if (err_code != NRF_SUCCESS)
-    {
-        return err_code;
-    }
     
     // Send value if connected and notifying
-    if ((p_oto->conn_handle != BLE_CONN_HANDLE_INVALID) && p_oto->is_notification_supported)
+    if (p_oto->conn_handle != BLE_CONN_HANDLE_INVALID)
     {
         ble_gatts_hvx_params_t hvx_params;
+			  uint16_t hvx_len;
+			
+			  hvx_len = sizeof(uint8_t);
         
         memset(&hvx_params, 0, sizeof(hvx_params));
-        len = sizeof(uint8_t);
         
         hvx_params.handle   = p_oto->step_count_handles.value_handle;
         hvx_params.type     = BLE_GATT_HVX_NOTIFICATION;
         hvx_params.offset   = 0;
-        hvx_params.p_len    = &len;
+        hvx_params.p_len    = &hvx_len;
         hvx_params.p_data   = &step_count;
         
         err_code = sd_ble_gatts_hvx(p_oto->conn_handle, &hvx_params);
