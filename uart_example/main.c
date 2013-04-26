@@ -139,6 +139,10 @@ int main(void)
 	uint8_t cr = simple_uart_get();
 	acc_init();
 	gpiote_init();
+    NVIC_EnableIRQ(GPIOTE_IRQn);
+    __enable_irq();
+
+
 	cr = simple_uart_get();
 	simple_uart_putstring("Starting...\r\n");
 	
