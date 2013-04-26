@@ -43,6 +43,7 @@
 #include "simple_uart.h"
 #include "acc_driver.h"
 #include "boards.h"
+#include "step_counter.h"
 
 /*!< Pin number to used for ADNS2080 motion interrupt. If you change 
     this, also remember to change the pin configuration in the main 

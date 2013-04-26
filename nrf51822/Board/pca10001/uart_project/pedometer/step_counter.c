@@ -1,39 +1,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include "step_counter.h"
 
-#define SAMPLE_SIZE 300.0
-#define SAMPLE_RATE 50.0
-#define PI 3.14159265
-#define X 0
-#define Y 4
-#define Z 8
-#define GET_FIELD(acc_data_p, field) *((int*)((char*)(acc_data_p) + field))
-#define MAX_STEP_FREQ 5.0
-#define MIN_STEP_FREQ 0.5
-
-
-// data array contains an array of structs
-typedef struct {
-  int x;
-  int y;
-  int z;
-} acc_data_t;
-
-typedef struct {
-  int threshold;
-  int max;
-  int min;
-  int axis;
-  int precision;
-} measurements;
-
-inline int max_of(int a, int b)
+int max_of(int a, int b)
 {
   return (a > b) ? a : b; 
 }
 
-inline int min_of(int a, int b)
+int min_of(int a, int b)
 {
   return (a < b) ? a : b; 
 }
@@ -44,7 +19,6 @@ void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
     acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
     acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
     acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-    printf("cycles: %f\n", ((freq/SAMPLE_RATE) * i) );
   }
 }
  
@@ -65,7 +39,7 @@ void print_acc_data_array(acc_data_t* acc_data_array, int size) {
     printf("x: %d ", GET_FIELD((acc_data_array + i), X));
     printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
     printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
-  } 
+  }
 }
 
 void print_measure_data(measurements* measure) {
@@ -83,11 +57,6 @@ void set_acc_data(acc_data_t *data, int x, int y, int z) {
 }
 int max_axis_offset(int dx, int dy, int dz)
 {
-  printf("DX: %d ", dx);
-  printf("DY: %d ", dy);
-  printf("DZ: %d \n", dz);
-
-
   if(dx > dy) {
     if(dx > dz)
         return X;
@@ -163,7 +132,6 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
     }
     if(below_taken && above_taken && ((sample_above - sample_below) > measure->precision)) {
       steps++;
-      printf("Counted step i:%d Sample_abov:%d Sample_below:%d cycles: %f\n", i, sample_above, sample_below, ((5.00/SAMPLE_RATE) * i));
       above_taken = 0;
       below_taken = 0;
     }
@@ -178,7 +146,7 @@ int main() {
   fake_acc_data_array(acc_arr, SAMPLE_SIZE, 5);
   filter(acc_arr, SAMPLE_SIZE);
   get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-  printf("counted %d steps\n", count_steps(&measure, acc_arr, SAMPLE_SIZE));
+  count_steps(&measure, acc_arr, SAMPLE_SIZE);
   print_measure_data(&measure);
   return 0;
 }
