@@ -1,27 +1,10 @@
-/* Copyright (c) 2012 Nordic Semiconductor. All Rights Reserved.
+/*
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * Terms and conditions of usage are described in detail in NORDIC
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
- *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * Based on the Heart Rate Service Sample Application for nRF51822 evaluation board
  *
  */
 
-/** @file
- *
- * @defgroup ble_sdk_app_hrs_eval_main main.c
- * @{
- * @ingroup ble_sdk_app_hrs_eval
- * @brief Main file for Heart Rate Service Sample Application for nRF51822 evaluation board
- *
- * This file contains the source code for a sample application using the Heart Rate service
- * (and also Battery and Device Information services) for the nRF51822 evaluation board (PCA10001).
- * This application uses the @ref ble_sdk_lib_conn_params module.
- */
-
+#include "main.h"
 #include <stdint.h>
 #include <string.h>
 #include "nordic_common.h"
@@ -31,29 +14,27 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
-#include "ble_bas.h"
-#include "ble_hrs.h"
-#include "ble_dis.h"
+#include "ble_oto.h"
 #include "ble_conn_params.h"
 #include "ble_eval_board_pins.h"
 #include "ble_stack_handler.h"
 #include "app_timer.h"
 #include "nrf_gpio.h"
 #include "led.h"
-#include "battery.h"
 #include "ble_bondmngr.h"
 #include "app_gpiote.h"
 #include "app_button.h"
 #include "ble_radio_notification.h"
 #include "ble_flash.h"
 #include "ble_debug_assert_handler.h"
+#include "simple_uart.h"
 
 
-#define HR_INC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_0                       /**< Button used to increment heart rate. */
-#define HR_DEC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_1                       /**< Button used to decrement heart rate. */
+#define HR_INC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_0                      
+#define HR_DEC_BUTTON_PIN_NO                 EVAL_BOARD_BUTTON_1                       
 #define BONDMNGR_DELETE_BUTTON_PIN_NO        HR_DEC_BUTTON_PIN_NO                      /**< Button used for deleting all bonded masters during startup. */
 
-#define DEVICE_NAME                          "Nordic_HRM"                              /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                          "Otolith"                                 /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME                    "NordicSemiconductor"                     /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                     40                                        /**< The advertising interval (in units of 0.625 ms. This value corresponds to 25 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS           180                                       /**< The advertising timeout in units of seconds. */
@@ -61,13 +42,6 @@
 #define APP_TIMER_PRESCALER                  0                                         /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_MAX_TIMERS                 4                                         /**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE              5                                         /**< Size of timer operation queues. */
-
-#define BATTERY_LEVEL_MEAS_INTERVAL          APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)/**< Battery level measurement interval (ticks). */
-
-#define HEART_RATE_MEAS_INTERVAL             APP_TIMER_TICKS(1000, APP_TIMER_PRESCALER)/**< Heart rate measurement interval (ticks). */
-#define MIN_HEART_RATE                       60                                        /**< Minimum heart rate as returned by the simulated measurement function. */
-#define MAX_HEART_RATE                       300                                       /**< Maximum heart rate as returned by the simulated measurement function. */
-#define HEART_RATE_CHANGE                    2                                         /**< Value by which the heart rate is incremented/decremented during button press. */
 
 #define APP_GPIOTE_MAX_USERS                 1                                         /**< Maximum number of users of the GPIOTE handler. */
 
@@ -99,13 +73,7 @@
 
 static ble_gap_sec_params_t                  m_sec_params;                             /**< Security requirements for this application. */
 static ble_gap_adv_params_t                  m_adv_params;                             /**< Parameters to be passed to the stack when starting advertising. */
-ble_bas_t                                    bas;                                      /**< Structure used to identify the battery service. */
-static ble_hrs_t                             m_hrs;                                    /**< Structure used to identify the heart rate service. */
-static volatile uint16_t                     m_cur_heart_rate;                         /**< Current heart rate value. */
-
-static app_timer_id_t                        m_battery_timer_id;                       /**< Battery timer. */
-static app_timer_id_t                        m_heart_rate_timer_id;                    /**< Heart rate measurement timer. */
-
+static ble_oto_t                             m_oto;                                    
 
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
@@ -126,15 +94,6 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
  */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
-    // This call can be used for debug purposes during development of an application.
-    // @note CAUTION: Activating this code will write the stack to flash on an error.
-    //                This function should NOT be used in a final product.
-    //                It is intended STRICTLY for development/debugging purposes.
-    //                The flash write will happen EVEN if the radio is active, thus interrupting
-    //                any communication.
-    //                Use with care. Un-comment the line below to use.
-    // ble_debug_assert_handler(error_code, line_num, p_file_name);
-
     // On assert, the system can only recover with a reset.
     NVIC_SystemReset();
 }
@@ -176,54 +135,9 @@ static void bond_manager_error_handler(uint32_t nrf_error)
     APP_ERROR_HANDLER(nrf_error);
 }
 
-
-/*****************************************************************************
-* Static Timeout Handling Functions
-*****************************************************************************/
-
-/**@brief Battery measurement timer timeout handler.
- *
- * @details This function will be called each time the battery level measurement timer expires.
- *          This function will start the ADC.
- *
- * @param[in]   p_context   Pointer used for passing some arbitrary information (context) from the
- *                          app_start_timer() call to the timeout handler.
- */
-static void battery_level_meas_timeout_handler(void * p_context)
+static void log(const char * msg)
 {
-    UNUSED_PARAMETER(p_context);
-    battery_start();
-}
-
-
-/**@brief Heart rate measurement timer timeout handler.
- *
- * @details This function will be called each time the heart rate measurement timer expires.
- *          It will exclude RR Interval data from every third measurement.
- *
- * @param[in]   p_context   Pointer used for passing some arbitrary information (context) from the
- *                          app_start_timer() call to the timeout handler.
- */
-static void heart_rate_meas_timeout_handler(void * p_context)
-{
-    uint32_t err_code;
-
-    UNUSED_PARAMETER(p_context);
-
-    err_code = ble_hrs_heart_rate_measurement_send(&m_hrs, m_cur_heart_rate);
-
-    if (
-        (err_code != NRF_SUCCESS)
-        &&
-        (err_code != NRF_ERROR_INVALID_STATE)
-        &&
-        (err_code != BLE_ERROR_NO_TX_BUFFERS)
-        &&
-        (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-    )
-    {
-        APP_ERROR_HANDLER(err_code);
-    }
+	simple_uart_putstring((const uint8_t *)msg);
 }
 
 
@@ -233,24 +147,18 @@ static void heart_rate_meas_timeout_handler(void * p_context)
  */
 static void button_event_handler(uint8_t pin_no)
 {
+    static uint8_t cur_step_count = 5;
+	
+	  log("Button pressed!\r\n");
+	
     switch (pin_no)
     {
         case HR_INC_BUTTON_PIN_NO:
-            // Increase Heart Rate measurement
-            m_cur_heart_rate += HEART_RATE_CHANGE;
-            if (m_cur_heart_rate > MAX_HEART_RATE)
-            {
-                m_cur_heart_rate = MIN_HEART_RATE; // Loop back
-            }
+            ble_oto_send_step_count(&m_oto, cur_step_count);
             break;
             
         case HR_DEC_BUTTON_PIN_NO:
-            // Decrease Heart Rate measurement
-            m_cur_heart_rate -= HEART_RATE_CHANGE;
-            if (m_cur_heart_rate < MIN_HEART_RATE)
-            {
-                m_cur_heart_rate = MAX_HEART_RATE; // Loop back
-            }
+					  cur_step_count += 5;
             break;
             
         default:
@@ -263,27 +171,21 @@ static void button_event_handler(uint8_t pin_no)
 * Static Initialization Functions
 *****************************************************************************/
 
+
+static void uart_init(void)
+{
+	simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+}
+
+
 /**@brief Timer initialization.
  *
 * @details Initializes the timer module. This creates and starts application timers.
 */
 static void timers_init(void)
 {
-    uint32_t err_code;
-
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
-
-    // Create timers
-    err_code = app_timer_create(&m_battery_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                battery_level_meas_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_heart_rate_timer_id,
-                                APP_TIMER_MODE_REPEATED,
-                                heart_rate_meas_timeout_handler);
-    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -331,9 +233,7 @@ static void advertising_init(void)
 
     ble_uuid_t adv_uuids[] =
     {
-        {BLE_UUID_HEART_RATE_SERVICE,         BLE_UUID_TYPE_BLE},
-        {BLE_UUID_BATTERY_SERVICE,            BLE_UUID_TYPE_BLE},
-        {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE}
     };
 
     // Build and set advertising data
@@ -359,65 +259,29 @@ static void advertising_init(void)
     m_adv_params.timeout     = APP_ADV_TIMEOUT_IN_SECONDS;
 }
 
-
 /**@brief Initialize services that will be used by the application.
- *
- * @details Initialize the Heart Rate, Battery and Device Information services.
  */
 static void services_init(void)
 {
     uint32_t       err_code;
-    ble_hrs_init_t hrs_init;
-    ble_bas_init_t bas_init;
-    ble_dis_init_t dis_init;
-    uint8_t        body_sensor_location;
-
-    // Initialize Heart Rate Service
-    body_sensor_location = BLE_HRS_BODY_SENSOR_LOCATION_FINGER;
-
-    memset(&hrs_init, 0, sizeof(hrs_init));
-
-    hrs_init.is_sensor_contact_supported = false;
-    hrs_init.p_body_sensor_location      = &body_sensor_location;
-
-    // Here the sec level for the Heart Rate Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_hrm_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_hrm_attr_md.write_perm);
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hrs_init.hrs_bsl_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&hrs_init.hrs_bsl_attr_md.write_perm);
-
-    err_code = ble_hrs_init(&m_hrs, &hrs_init);
-    APP_ERROR_CHECK(err_code);
+    ble_oto_init_t oto_init;
 
     // Initialize Battery Service
-    memset(&bas_init, 0, sizeof(bas_init));
+    memset(&oto_init, 0, sizeof(oto_init));
 
     // Here the sec level for the Battery Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&oto_init.step_count_char_attr_md.write_perm);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_report_read_perm);
 
-    bas_init.evt_handler          = NULL;
-    bas_init.support_notification = true;
-    bas_init.p_report_ref         = NULL;
-    bas_init.initial_batt_level   = 100;
+    oto_init.evt_handler          = NULL;
+    oto_init.support_notification = true;
+    oto_init.p_report_ref         = NULL;
+    oto_init.initial_step_count   = 42;
 
-    err_code = ble_bas_init(&bas, &bas_init);
-    APP_ERROR_CHECK(err_code);
-
-    // Initialize Device Information Service
-    memset(&dis_init, 0, sizeof(dis_init));
-
-    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, MANUFACTURER_NAME);
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init.dis_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init.dis_attr_md.write_perm);
-
-    err_code = ble_dis_init(&dis_init);
+    err_code = ble_oto_init(&m_oto, &oto_init);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -449,7 +313,6 @@ static void conn_params_init(void)
     cp_init.first_conn_params_update_delay = FIRST_CONN_PARAMS_UPDATE_DELAY;
     cp_init.next_conn_params_update_delay  = NEXT_CONN_PARAMS_UPDATE_DELAY;
     cp_init.max_conn_params_update_count   = MAX_CONN_PARAMS_UPDATE_COUNT;
-    cp_init.start_on_notify_cccd_handle    = m_hrs.hrm_handles.cccd_handle;
     cp_init.disconnect_on_fail             = true;
     cp_init.evt_handler                    = NULL;
     cp_init.error_handler                  = conn_params_error_handler;
@@ -556,21 +419,6 @@ static bool is_first_start(void)
 * Static Start Functions
 *****************************************************************************/
 
-/**@brief Start application timers.
- */
-static void application_timers_start(void)
-{
-    uint32_t err_code;
-
-    // Start application timers
-    err_code = app_timer_start(m_battery_timer_id, BATTERY_LEVEL_MEAS_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_start(m_heart_rate_timer_id, HEART_RATE_MEAS_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
-}
-
-
 /**@brief Start advertising.
  */
 static void advertising_start(void)
@@ -614,13 +462,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             led_stop();
             
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-            
-            // Initialize the current heart rate to the average of max and min values. So that
-            // everytime a new connection is made, the heart rate starts from the same value.
-            m_cur_heart_rate = (MAX_HEART_RATE + MIN_HEART_RATE) / 2;
-
-            // Start timers used to generate battery and HR measurements.
-            application_timers_start();
 
             // Start handling button presses
             err_code = app_button_enable();
@@ -668,8 +509,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     ble_bondmngr_on_ble_evt(p_ble_evt);
-    ble_hrs_on_ble_evt(&m_hrs, p_ble_evt);
-    ble_bas_on_ble_evt(&bas, p_ble_evt);
+	  ble_oto_on_ble_evt(&m_oto, p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     on_ble_evt(p_ble_evt);
 }
@@ -684,11 +524,14 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 int main(void)
 {
     uint32_t err_code;
-
+		
+	  uart_init();
     timers_init();
     gpiote_init();
     buttons_init();
 
+	  log("Starting...\r\n");
+	
     if (is_first_start())
     {
         // The startup was not because of button presses. This is the first start.

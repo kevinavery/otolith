@@ -29,6 +29,9 @@
 
 /** @defgroup UUID_SERVICES Service UUID definitions
  * @{ */
+
+#define BLE_UUID_OTOLITH_SERVICE                                 0x1000  /* Otolith service UUID */
+
 #define BLE_UUID_ALERT_NOTIFICATION_SERVICE                      0x1811     /**< Alert Notification service UUID. */
 #define BLE_UUID_BATTERY_SERVICE                                 0x180F     /**< Battery service UUID. */
 #define BLE_UUID_BLOOD_PRESSURE_SERVICE                          0x1810     /**< Blood Pressure service UUID. */
@@ -52,6 +55,9 @@
 
 /** @defgroup UUID_CHARACTERISTICS Characteristic UUID definitions
  * @{ */
+
+#define BLE_UUID_STEP_COUNT_CHAR                                 0x2001 /* Step Count characteristic UUID */
+
 #define BLE_UUID_BATTERY_LEVEL_STATE_CHAR                        0x2A1B     /**< Battery Level State characteristic UUID. */
 #define BLE_UUID_BATTERY_POWER_STATE_CHAR                        0x2A1A     /**< Battery Power State characteristic UUID. */
 #define BLE_UUID_REMOVABLE_CHAR                                  0x2A3A     /**< Removable characteristic UUID. */

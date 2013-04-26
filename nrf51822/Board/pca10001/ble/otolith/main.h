@@ -24,8 +24,13 @@
 #ifndef MAIN_H__
 #define MAIN_H__
 
-/**@brief External reference to the Battery Service. */
-extern ble_bas_t                             bas;
+// For UART (debugging)
+#define RX_PIN_NUMBER  11
+#define TX_PIN_NUMBER  9
+#define CTS_PIN_NUMBER 10
+#define RTS_PIN_NUMBER 8
+#define HWFC           true
+
 
 #endif // MAIN_H__
 

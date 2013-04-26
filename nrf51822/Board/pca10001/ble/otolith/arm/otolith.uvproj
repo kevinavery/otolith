@@ -130,7 +130,7 @@
           <Target>
             <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>0</RunToMain>
+            <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
             <RestoreWatchpoints>1</RestoreWatchpoints>
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
@@ -412,11 +412,6 @@
               <FilePath>.\..\main.c</FilePath>
             </File>
             <File>
-              <FileName>battery.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\battery.c</FilePath>
-            </File>
-            <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\led.c</FilePath>
@@ -427,19 +422,9 @@
           <GroupName>Services</GroupName>
           <Files>
             <File>
-              <FileName>ble_dis.c</FileName>
+              <FileName>ble_oto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_dis.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_bas.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_bas.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_hrs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_hrs.c</FilePath>
+              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_oto.c</FilePath>
             </File>
           </Files>
         </Group>
