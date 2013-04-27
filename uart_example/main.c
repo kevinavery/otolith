@@ -45,12 +45,14 @@
 #include "boards.h"
 #include "step_counter.h"
 
-/*!< Pin number to used for ADNS2080 motion interrupt. If you change 
-    this, also remember to change the pin configuration in the main 
-    function. */
 #define FIFO_INTERRUPT_PIN_NUMBER (7) 
 
-
+/**
+ * Global data for counting steps  
+ **/
+measurements data;
+acc_data_t acc_arr[SAMPLE_SIZE];
+int collected_data;
 
 void gpiote_init(void) {
 
@@ -107,22 +109,34 @@ void printData(uint8_t *label, int32_t data)
 	simple_uart_putstring("\r\n");
 }
 
+void fill_data(acc_data_t* acc_array) {
+    simple_uart_putstring("Filling data...");
+    
+    if(collected_data >= SAMPLE_SIZE) {
+        collected_data = 0;
+    }
+
+    for(i = 0; i < 25; i++) {
+        update_acc_data(acc_array[collected_data++ + i]);
+    }
+}
+
 /** GPIOTE interrupt handler.
 * Triggered on motion interrupt pin input low-to-high transition.
 */
 void GPIOTE_IRQHandler(void)
 {
-
-			int i;
-		for(i = 0; i < 20; i++) {
-			acc_data_t* acc = update_acc_data();
-			printData("XCATS: ", acc->x);
-			printData("YCATS: ", acc->y);
-			printData("ZCATS: ", acc->z);
-		}
-		
-  // Event causing the interrupt must be cleared
-  NRF_GPIOTE->EVENTS_IN[0] = 0;
+    int steps;
+    fill_data(&acc_arr);
+    if(collected_data >= arr_size) {
+        filter(&acc_arr, SAMPLE_SIZE);
+        get_max_min(&data, &acc_arr, SAMPLE_SIZE);
+        steps = count_steps(&data, &acc_arr, SAMPLE_SIZE);
+        printData("Steps: ", steps);
+    }
+    
+    // Event causing the interrupt must be cleared
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
 }
 
 
@@ -134,7 +148,7 @@ void GPIOTE_IRQHandler(void)
  */
 int main(void)
 {
-  simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+    simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
 
 	uint8_t temp[4];
 	uint8_t cr = simple_uart_get();
@@ -147,24 +161,20 @@ int main(void)
 	cr = simple_uart_get();
 	simple_uart_putstring("Starting...\r\n");
 	
-  while(true)
-  {
-	//	uint8_t cr = simple_uart_get();
-		
-	//	if(!read_register(ADXL345_FIFO_STATUS, 2, temp))
-	//		printData("Status: ", temp[1]);
-			cr = simple_uart_get();
-		int i;
-		acc_data_t* acc;
-		for(i = 0; i < 50; i++){
-			 acc = update_acc_data();
-			 printData("X: ", acc->x);
-		}
-    if(cr == 'q' || cr == 'Q')
+    while(true)
     {
-      while(1){}
+    	cr = simple_uart_get();
+    	int i;
+    	// acc_data_t* acc;
+    	// for(i = 0; i < 50; i++){
+    	// 	 acc = update_acc_data();
+    	// 	 printData("X: ", acc->x);
+    	// }
+        if(cr == 'q' || cr == 'Q')
+        {
+          while(1){}
+        }
     }
-  }
 
 }
 

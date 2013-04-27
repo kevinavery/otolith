@@ -1,7 +1,7 @@
 #ifndef ADXL345_h
 #define ADXL345_h
 
-#define SAMPLE_SIZE 300.0
+#define SAMPLE_SIZE 100.0
 #define SAMPLE_RATE 50.0
 #define PI 3.14159265
 #define X 0
@@ -12,11 +12,11 @@
 #define MIN_STEP_FREQ 0.5
 
 // data array contains an array of structs
-typedef struct {
-  int x;
-  int y;
-  int z;
-} acc_data_t;
+// typedef struct {
+//   int x;
+//   int y;
+//   int z;
+// } acc_data_t;
 
 typedef struct {
   int threshold;

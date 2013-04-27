@@ -10,7 +10,7 @@
 static uint8_t tx_data[MSG_LENGTH]; /*!< SPI TX buffer */
 //static uint8_t rx_data[MSG_LENGTH]; /*!< SPI RX buffer */
 static uint32_t* spi_ba = 0;
-static acc_data_t acc_data;
+//static acc_data_t acc_data;
 
 int fifo_init(void)
 {
@@ -106,14 +106,13 @@ int read_register(uint8_t register_address, int num_bytes, uint8_t* values)
   return 0;
 }
 
-acc_data_t * update_acc_data(void)
+void update_acc_data(acc_data_t *acc_data)
 {
 	uint8_t buffer[7];
 	read_register(ADXL345_DATAX0, 7, buffer);
-	acc_data.x = (buffer[2] << 8) | buffer[1];
-	acc_data.y = (buffer[4] << 8) | buffer[3];
-	acc_data.z = (buffer[6] << 8) | buffer[5];
-	return &acc_data;
+	acc_data->x = (buffer[2] << 8) | buffer[1];
+	acc_data->y = (buffer[4] << 8) | buffer[3];
+	acc_data->z = (buffer[6] << 8) | buffer[5];
 }
 
 
