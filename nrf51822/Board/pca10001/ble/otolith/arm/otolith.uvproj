@@ -416,6 +416,11 @@
               <FileType>1</FileType>
               <FilePath>..\led.c</FilePath>
             </File>
+            <File>
+              <FileName>util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\util.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -425,6 +430,11 @@
               <FileName>ble_oto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_oto.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_as.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_as.c</FilePath>
             </File>
           </Files>
         </Group>

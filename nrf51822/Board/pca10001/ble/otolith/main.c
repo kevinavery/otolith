@@ -14,7 +14,6 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
-#include "ble_oto.h"
 #include "ble_conn_params.h"
 #include "ble_eval_board_pins.h"
 #include "ble_stack_handler.h"
@@ -27,6 +26,8 @@
 #include "ble_radio_notification.h"
 #include "ble_flash.h"
 #include "ble_debug_assert_handler.h"
+#include "ble_oto.h"
+#include "ble_as.h"
 #include "util.h"
 
                      
@@ -71,7 +72,9 @@
 
 static ble_gap_sec_params_t                  m_sec_params;                             /**< Security requirements for this application. */
 static ble_gap_adv_params_t                  m_adv_params;                             /**< Parameters to be passed to the stack when starting advertising. */
-static ble_oto_t                             m_oto;                                    
+
+static ble_oto_t                             m_oto;       
+static ble_as_t                              m_as;
 
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
@@ -142,13 +145,21 @@ static void button_event_handler(uint8_t pin_no)
 {
     static uint8_t cur_step_count = 0;
 	
-	  mlog_str("Button pressed!\r\n");
+	  mlog_str("begin button_event_handler\r\n");
 	
     switch (pin_no)
     {
         case EVAL_BOARD_BUTTON_0:
+					  mlog_str("button 0\r\n");
             ble_oto_send_step_count(&m_oto, cur_step_count);
 				    cur_step_count = 0;
+				
+				    // DEBUG: print alarm time
+				    uint8_t t;
+				    ble_as_alarm_time_get(&m_as, &t);
+				    mlog_str("Alarm time: ");
+				    mlog_num((int)t);
+				    mlog_str("\r\n");
             break;
             
         case EVAL_BOARD_BUTTON_1:
@@ -158,6 +169,16 @@ static void button_event_handler(uint8_t pin_no)
         default:
             APP_ERROR_HANDLER(pin_no);
     }
+		
+		mlog_str("end button_event_handler\r\n");
+}
+
+
+void on_ble_as_update(ble_as_t * p_as, ble_as_evt_t * p_evt)
+{
+	mlog_str("Received alarm time update: ");
+	mlog_num(p_evt->params.alarm_time);
+	mlog_str("\r\n");
 }
 
 
@@ -220,6 +241,7 @@ static void advertising_init(void)
 
     ble_uuid_t adv_uuids[] =
     {
+				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE},
 				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE}
     };
 
@@ -252,6 +274,7 @@ static void services_init(void)
 {
     uint32_t       err_code;
     ble_oto_init_t oto_init;
+	  ble_as_init_t  as_init;
 
     // Initialize Otolith Service
     memset(&oto_init, 0, sizeof(oto_init));
@@ -261,12 +284,17 @@ static void services_init(void)
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_char_attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&oto_init.step_count_char_attr_md.write_perm);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&oto_init.step_count_report_read_perm);
-
     oto_init.evt_handler          = NULL;
     oto_init.initial_step_count   = 42;
 
     err_code = ble_oto_init(&m_oto, &oto_init);
+    APP_ERROR_CHECK(err_code);
+	
+	  // Initialize Alarm Service
+    memset(&as_init, 0, sizeof(as_init));
+	  as_init.evt_handler = on_ble_as_update;
+		
+		err_code = ble_as_init(&m_as, &as_init);
     APP_ERROR_CHECK(err_code);
 }
 

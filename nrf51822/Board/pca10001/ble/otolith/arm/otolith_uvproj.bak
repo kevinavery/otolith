@@ -491,6 +491,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\Source\ble\ble_debug_assert_handler.c</FilePath>
             </File>
+            <File>
+              <FileName>simple_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\simple_uart\simple_uart.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

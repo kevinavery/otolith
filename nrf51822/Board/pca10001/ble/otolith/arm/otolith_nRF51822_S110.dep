@@ -11,7 +11,7 @@ I (C:\Keil\ARM\CMSIS\Include\core_cmFunc.h)(0x5088205E)
 I (..\..\..\..\..\Include\system_nrf51.h)(0x5169B480)
 I (..\..\..\..\..\Include\nrf51_bitfields.h)(0x5169B480)
 I (..\..\..\..\..\Include\nrf51_deprecated.h)(0x5169B480)
-F (.\..\main.c)(0x517AECD2)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\main.o" --omf_browse ".\_build\main.crf" --depend ".\_build\main.d")
+F (.\..\main.c)(0x517C3911)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\main.o" --omf_browse ".\_build\main.crf" --depend ".\_build\main.d")
 I (..\main.h)(0x517AE9DB)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
 I (C:\Keil\ARM\ARMCC\bin\..\include\string.h)(0x50FA3440)
@@ -38,10 +38,9 @@ I (..\..\..\..\..\Include\ble\softdevice\ble_err.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatt.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gattc.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatts.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_advdata.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_oto.h)(0x517AC51A)
 I (..\..\..\..\..\Include\ble\ble_conn_params.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_eval_board_pins.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_stack_handler.h)(0x5169B480)
@@ -61,7 +60,9 @@ I (..\..\..\..\..\Include\app_common\app_button.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_radio_notification.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_flash.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\ble_debug_assert_handler.h)(0x5169B480)
-I (..\util.h)(0x517AED42)
+I (..\..\..\..\..\Include\ble\ble_services\ble_oto.h)(0x517B4127)
+I (..\..\..\..\..\Include\ble\ble_services\ble_as.h)(0x517B44F9)
+I (..\util.h)(0x517AF175)
 I (..\..\..\..\..\Include\simple_uart.h)(0x5169B480)
 F (..\led.c)(0x5169B480)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\led.o" --omf_browse ".\_build\led.crf" --depend ".\_build\led.d")
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
@@ -87,13 +88,13 @@ I (..\..\..\..\..\Include\nrf_gpio.h)(0x5169B480)
 I (..\..\..\..\..\Include\nrf_gpiote.h)(0x5169B480)
 I (..\led.h)(0x5169B480)
 I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
-F (..\util.c)(0x517AEEC3)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\util.o" --omf_browse ".\_build\util.crf" --depend ".\_build\util.d")
-I (..\util.h)(0x517AED42)
+F (..\util.c)(0x517AF16E)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\util.o" --omf_browse ".\_build\util.crf" --depend ".\_build\util.d")
+I (..\util.h)(0x517AF175)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
 I (..\..\..\..\..\Include\simple_uart.h)(0x5169B480)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
-F (..\..\..\..\..\Source\ble\ble_services\ble_oto.c)(0x517AECCF)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_oto.o" --omf_browse ".\_build\ble_oto.crf" --depend ".\_build\ble_oto.d")
-I (..\..\..\..\..\Include\ble\ble_services\ble_oto.h)(0x517AC51A)
+F (..\..\..\..\..\Source\ble\ble_services\ble_oto.c)(0x517B15EA)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_oto.o" --omf_browse ".\_build\ble_oto.crf" --depend ".\_build\ble_oto.d")
+I (..\..\..\..\..\Include\ble\ble_services\ble_oto.h)(0x517B4127)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
 I (..\..\..\..\..\Include\ble\softdevice\ble.h)(0x5169B480)
@@ -107,7 +108,7 @@ I (..\..\..\..\..\Include\ble\softdevice\nrf_error.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatt.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gattc.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatts.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
 I (..\..\..\..\..\Include\compiler_abstraction.h)(0x5169B480)
 I (..\..\..\..\..\Include\nrf51.h)(0x5169B480)
@@ -118,7 +119,34 @@ I (..\..\..\..\..\Include\system_nrf51.h)(0x5169B480)
 I (..\..\..\..\..\Include\app_common\app_error.h)(0x5169B480)
 I (C:\Keil\ARM\ARMCC\bin\..\include\string.h)(0x50FA3440)
 I (..\..\..\..\..\Include\nordic_common.h)(0x5169B480)
-I (..\util.h)(0x517AED42)
+I (..\util.h)(0x517AF175)
+I (..\..\..\..\..\Include\simple_uart.h)(0x5169B480)
+F (..\..\..\..\..\Source\ble\ble_services\ble_as.c)(0x517C3651)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_as.o" --omf_browse ".\_build\ble_as.crf" --depend ".\_build\ble_as.d")
+I (..\..\..\..\..\Include\ble\ble_services\ble_as.h)(0x517B44F9)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
+I (..\..\..\..\..\Include\ble\softdevice\ble.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_ranges.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_types.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_gap.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\nrf_svc.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_l2cap.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_err.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\nrf_error.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_gatt.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_gattc.h)(0x5169B480)
+I (..\..\..\..\..\Include\ble\softdevice\ble_gatts.h)(0x5169B480)
+I (C:\Keil\ARM\ARMCC\bin\..\include\string.h)(0x50FA3440)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
+I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
+I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
+I (..\..\..\..\..\Include\compiler_abstraction.h)(0x5169B480)
+I (..\..\..\..\..\Include\nrf51.h)(0x5169B480)
+I (C:\Keil\ARM\CMSIS\Include\core_cm0.h)(0x5088205E)
+I (C:\Keil\ARM\CMSIS\Include\core_cmInstr.h)(0x5088205E)
+I (C:\Keil\ARM\CMSIS\Include\core_cmFunc.h)(0x5088205E)
+I (..\..\..\..\..\Include\system_nrf51.h)(0x5169B480)
+I (..\..\..\..\..\Include\app_common\app_error.h)(0x5169B480)
+I (..\util.h)(0x517AF175)
 I (..\..\..\..\..\Include\simple_uart.h)(0x5169B480)
 F (..\..\..\..\..\Source\ble\ble_conn_params.c)(0x5169B480)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_conn_params.o" --omf_browse ".\_build\ble_conn_params.crf" --depend ".\_build\ble_conn_params.d")
 I (..\..\..\..\..\Include\ble\ble_conn_params.h)(0x5169B480)
@@ -134,7 +162,7 @@ I (..\..\..\..\..\Include\ble\softdevice\nrf_error.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatt.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gattc.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatts.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
 I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
 I (..\..\..\..\..\Include\compiler_abstraction.h)(0x5169B480)
@@ -175,9 +203,9 @@ I (C:\Keil\ARM\CMSIS\Include\core_cmFunc.h)(0x5088205E)
 I (..\..\..\..\..\Include\system_nrf51.h)(0x5169B480)
 I (..\..\..\..\..\Include\app_common\app_error.h)(0x5169B480)
 I (..\..\..\..\..\Include\nordic_common.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 F (..\..\..\..\..\Source\ble\ble_services\ble_srv_common.c)(0x5169B480)(-c --cpu Cortex-M0 -D__EVAL --li -g -O3 -Otime --apcs=interwork --enum_is_int -I.. -I..\..\..\..\..\Include -I..\..\..\..\..\Include\app_common -I..\..\..\..\..\Include\ble -I..\..\..\..\..\Include\ble\ble_services -I..\..\..\..\..\Include\ble\softdevice --c99 -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Device\Nordic\nRF51822\Include -DNRF51 -DDEBUG_NRF_USER -o ".\_build\ble_srv_common.o" --omf_browse ".\_build\ble_srv_common.crf" --depend ".\_build\ble_srv_common.d")
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdint.h)(0x50FA3440)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
 I (..\..\..\..\..\Include\ble\softdevice\ble_types.h)(0x5169B480)
@@ -266,7 +294,7 @@ I (..\..\..\..\..\Include\ble\softdevice\nrf_error.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatt.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gattc.h)(0x5169B480)
 I (..\..\..\..\..\Include\ble\softdevice\ble_gatts.h)(0x5169B480)
-I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x5179D572)
+I (..\..\..\..\..\Include\ble\ble_services\ble_srv_common.h)(0x517B461E)
 I (C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h)(0x50FA3440)
 I (..\..\..\..\..\Include\app_common\app_util.h)(0x5169B480)
 I (..\..\..\..\..\Include\compiler_abstraction.h)(0x5169B480)
