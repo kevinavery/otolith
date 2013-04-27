@@ -81,7 +81,9 @@
 #define ADXL345_OVERRUNY   0x00
 
 
-
+#define MSG_LENGTH  100
+#define FIFO_SAMPLES 25
+#define WAIT_LENGTH  1<<20
 
 #define ADXL345_OK    1 // no error
 #define ADXL345_ERROR 0 // indicates error is predent

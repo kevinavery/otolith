@@ -1,6 +1,6 @@
-//#include <stdio.h>
-//#include <math.h>
-//#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include "step_counter.h"
 
 int max_of(int a, int b)
@@ -16,9 +16,9 @@ int min_of(int a, int b)
 void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
   int i;
   for(i = 0; i < size; i++) {
-//    acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-//    acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-//    acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+    acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+    acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+    acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
   }
 }
  
@@ -33,7 +33,6 @@ void filter(acc_data_t * acc_data_array, int size)
   }
 }
 
-/*
 void print_acc_data_array(acc_data_t* acc_data_array, int size) {
   int i;
   for(i = 0; i < size; i++) {
@@ -50,7 +49,6 @@ void print_measure_data(measurements* measure) {
     printf("THRESHOLD: %d \n", measure->threshold);
     printf("PRECISION: %d \n", measure->precision);
 }
-*/
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
   data->x = x;

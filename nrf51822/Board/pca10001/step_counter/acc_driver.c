@@ -4,8 +4,6 @@
 #include "common.h"
 #include "acc_driver.h"
 
-#define MSG_LENGTH  100
-#define WAIT_LENGTH  1<<20
 
 static uint8_t tx_data[MSG_LENGTH]; /*!< SPI TX buffer */
 //static uint8_t rx_data[MSG_LENGTH]; /*!< SPI RX buffer */
