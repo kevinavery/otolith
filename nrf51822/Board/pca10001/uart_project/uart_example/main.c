@@ -43,35 +43,30 @@
 #include "simple_uart.h"
 #include "acc_driver.h"
 #include "boards.h"
+#include "../pedometer/step_counter.h"
 
-/*!< Pin number to used for ADNS2080 motion interrupt. If you change 
-    this, also remember to change the pin configuration in the main 
-    function. */
-#define FIFO_INTERRUPT_PIN_NUMBER (26) 
+#define FIFO_INTERRUPT_PIN_NUMBER (7) 
+
+/**
+ * Global data for counting steps  
+ **/
+measurements data;
+acc_data_t acc_arr[SAMPLE_SIZE];
+int collected_data;
 
 void gpiote_init(void) {
 
     // Configure fifo interrupt pin
-    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_PULLDOWN);
+    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
     
     // Configure GPIOTE channel 0 to generate event when 
     // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
-    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_HITOLO);
     
     // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
     NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
 }
 
-/** GPIOTE interrupt handler.
-* Triggered on motion interrupt pin input low-to-high transition.
-*/
-void GPIOTE_IRQHandler(void)
-{
-  
-
-  // Event causing the interrupt must be cleared
-  NRF_GPIOTE->EVENTS_IN[0] = 0;
-}
 
 void itoa(int num, uint8_t *buf, int buf_len)
 {
@@ -105,7 +100,6 @@ void itoa(int num, uint8_t *buf, int buf_len)
     *(buf+i) = 0;
 }
 
-
 void printData(uint8_t *label, int32_t data)
 {
 	uint8_t str_buf[33];
@@ -115,38 +109,72 @@ void printData(uint8_t *label, int32_t data)
 	simple_uart_putstring("\r\n");
 }
 
+void fill_data(acc_data_t* acc_array) {
+    simple_uart_putstring("Filling data...");
+    
+    if(collected_data >= SAMPLE_SIZE) {
+        collected_data = 0;
+    }
+
+    for(i = 0; i < 25; i++) {
+        update_acc_data(acc_array[collected_data++ + i]);
+    }
+}
+
+/** GPIOTE interrupt handler.
+* Triggered on motion interrupt pin input low-to-high transition.
+*/
+void GPIOTE_IRQHandler(void)
+{
+    int steps;
+    fill_data(&acc_arr);
+    if(collected_data >= arr_size) {
+        filter(&acc_arr, SAMPLE_SIZE);
+        get_max_min(&data, &acc_arr, SAMPLE_SIZE);
+        steps = count_steps(&data, &acc_arr, SAMPLE_SIZE);
+        printData("Steps: ", steps);
+    }
+    
+    // Event causing the interrupt must be cleared
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
+}
+
+
+
+
 /**
  * main() function
  * @return 0. int return type required by ANSI/ISO standard.
  */
 int main(void)
 {
-  simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+    simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
 
 	uint8_t temp[4];
 	uint8_t cr = simple_uart_get();
 	acc_init();
+	gpiote_init();
+    NVIC_EnableIRQ(GPIOTE_IRQn);
+    __enable_irq();
+
+
+	cr = simple_uart_get();
 	simple_uart_putstring("Starting...\r\n");
 	
-  while(true)
-  {
-	//	uint8_t cr = simple_uart_get();
-		
-	//	if(!read_register(ADXL345_FIFO_STATUS, 2, temp))
-	//		printData("Status: ", temp[1]);
-		int i;
-	//	for(i = 0; i < 20; i++) {
-			acc_data_t* acc = update_acc_data();
-			printData("X: ", acc->x);
-//			printData("Y: ", acc->y);
-//			printData("Z: ", acc->z);
-//		}
-		
-    if(cr == 'q' || cr == 'Q')
+    while(true)
     {
-      while(1){}
+    	cr = simple_uart_get();
+    	int i;
+    	// acc_data_t* acc;
+    	// for(i = 0; i < 50; i++){
+    	// 	 acc = update_acc_data();
+    	// 	 printData("X: ", acc->x);
+    	// }
+        if(cr == 'q' || cr == 'Q')
+        {
+          while(1){}
+        }
     }
-  }
 
 }
 
