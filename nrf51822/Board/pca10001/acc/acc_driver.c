@@ -17,7 +17,7 @@ int fifo_init(void)
 	// enable fifo and for streaming
 	// FIFO_MODE = Stream (0x8)
 	// SAMPLES = 25 (0x1A)
-	write_register(ADXL345_FIFO_CTL, 0x9A);
+	write_register(ADXL345_FIFO_CTL, 0x99);
 	return 0;
 }
 
