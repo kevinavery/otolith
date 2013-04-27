@@ -41,7 +41,7 @@
 #include "nrf_gpio.h"
 #include "nrf_gpiote.h"
 #include "simple_uart.h"
-#include "acc_driver.h"
+#include "../acc/acc_driver.h"
 #include "boards.h"
 #include "../pedometer/step_counter.h"
 
