@@ -109,16 +109,22 @@ void printData(uint8_t *label, int32_t data)
 	simple_uart_putstring("\r\n");
 }
 
-void fill_data(acc_data_t* acc_array) {
+int fill_data(acc_data_t* acc_array) {
     simple_uart_putstring("Filling data...");
-    int i;
+    int max, temp;
     if(collected_data >= SAMPLE_SIZE) {
         collected_data = 0;
     }
-
-    for(i = 0; i < 25; i++) {
-        update_acc_data((acc_array + (collected_data++ + i)));
+    
+    temp = collected_data + FIFO_SAMPLES;
+    max = (temp < SAMPLE_SIZE) ? temp : SAMPLE_SIZE;
+    for(; collected_data < max; collected_data++) {
+        update_acc_data(acc_array + collected_data);
     }
+    if(collected_data >= SAMPLE_SIZE)
+        return 1;
+
+    return 0;
 }
 
 /** GPIOTE interrupt handler.

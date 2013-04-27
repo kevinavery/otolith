@@ -5,6 +5,7 @@
 #include "acc_driver.h"
 
 #define MSG_LENGTH  100
+#define FIFO_SAMPLES 25
 #define WAIT_LENGTH  1<<20
 
 static uint8_t tx_data[MSG_LENGTH]; /*!< SPI TX buffer */
