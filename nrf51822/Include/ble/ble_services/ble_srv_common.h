@@ -31,6 +31,7 @@
  * @{ */
 
 #define BLE_UUID_OTOLITH_SERVICE                                 0x1000  /* Otolith service UUID */
+#define BLE_UUID_ALARM_SERVICE                                   0x1001  /* Alarm service UUID */
 
 #define BLE_UUID_ALERT_NOTIFICATION_SERVICE                      0x1811     /**< Alert Notification service UUID. */
 #define BLE_UUID_BATTERY_SERVICE                                 0x180F     /**< Battery service UUID. */
@@ -56,7 +57,8 @@
 /** @defgroup UUID_CHARACTERISTICS Characteristic UUID definitions
  * @{ */
 
-#define BLE_UUID_STEP_COUNT_CHAR                                 0x2001 /* Step Count characteristic UUID */
+#define BLE_UUID_STEP_COUNT_CHAR                                 0x2000 /* Step Count characteristic UUID */
+#define BLE_UUID_ALARM_TIME_CHAR                                 0x2001 /* Alarm Time charactertistic UUID */
 
 #define BLE_UUID_BATTERY_LEVEL_STATE_CHAR                        0x2A1B     /**< Battery Level State characteristic UUID. */
 #define BLE_UUID_BATTERY_POWER_STATE_CHAR                        0x2A1A     /**< Battery Power State characteristic UUID. */
