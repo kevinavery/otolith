@@ -108,7 +108,7 @@ int get_steps(int steps) {
 }
 
 int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
-  int i, sample_above, above_taken, sample_below, below_taken, result, steps, last_step, thresh;
+  int i, sample_above, above_taken, sample_below, below_taken, result, steps, thresh;
   sample_above = measure->min;
   above_taken  = 0;
   sample_below = measure->max;
@@ -140,13 +140,13 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
   return get_steps(steps);
 }
 
-int main() {
-  measurements measure;
-  acc_data_t *acc_arr = malloc(sizeof(acc_data_t) * SAMPLE_SIZE);  
-  fake_acc_data_array(acc_arr, SAMPLE_SIZE, 5);
-  filter(acc_arr, SAMPLE_SIZE);
-  get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-  count_steps(&measure, acc_arr, SAMPLE_SIZE);
-  print_measure_data(&measure);
-  return 0;
-}
+// int main() {
+//   measurements measure;
+//   acc_data_t *acc_arr = malloc(sizeof(acc_data_t) * SAMPLE_SIZE);  
+//   fake_acc_data_array(acc_arr, SAMPLE_SIZE, 5);
+//   filter(acc_arr, SAMPLE_SIZE);
+//   get_max_min(&measure, acc_arr, SAMPLE_SIZE);
+//   count_steps(&measure, acc_arr, SAMPLE_SIZE);
+//   print_measure_data(&measure);
+//   return 0;
+// }

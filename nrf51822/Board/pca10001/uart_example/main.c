@@ -51,7 +51,7 @@
  * Global data for counting steps  
  **/
 measurements data;
-acc_data_t acc_arr[SAMPLE_SIZE];
+acc_data_t acc_arr[100];
 int collected_data;
 
 void gpiote_init(void) {
@@ -111,13 +111,13 @@ void printData(uint8_t *label, int32_t data)
 
 void fill_data(acc_data_t* acc_array) {
     simple_uart_putstring("Filling data...");
-    
+    int i;
     if(collected_data >= SAMPLE_SIZE) {
         collected_data = 0;
     }
 
     for(i = 0; i < 25; i++) {
-        update_acc_data(acc_array[collected_data++ + i]);
+        update_acc_data((acc_array + (collected_data++ + i)));
     }
 }
 
@@ -127,11 +127,11 @@ void fill_data(acc_data_t* acc_array) {
 void GPIOTE_IRQHandler(void)
 {
     int steps;
-    fill_data(&acc_arr);
-    if(collected_data >= arr_size) {
-        filter(&acc_arr, SAMPLE_SIZE);
-        get_max_min(&data, &acc_arr, SAMPLE_SIZE);
-        steps = count_steps(&data, &acc_arr, SAMPLE_SIZE);
+    fill_data(acc_arr);
+    if(collected_data >= SAMPLE_SIZE) {
+        filter(acc_arr, SAMPLE_SIZE);
+        get_max_min(&data, acc_arr, SAMPLE_SIZE);
+        steps = count_steps(&data, acc_arr, SAMPLE_SIZE);
         printData("Steps: ", steps);
     }
     
@@ -150,7 +150,6 @@ int main(void)
 {
     simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
 
-	uint8_t temp[4];
 	uint8_t cr = simple_uart_get();
 	acc_init();
 	gpiote_init();
@@ -164,7 +163,7 @@ int main(void)
     while(true)
     {
     	cr = simple_uart_get();
-    	int i;
+    	//int i;
     	// acc_data_t* acc;
     	// for(i = 0; i < 50; i++){
     	// 	 acc = update_acc_data();
