@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "step_counter.h"
+#include "util.h"
 
 int max_of(int a, int b)
 {
@@ -92,29 +93,30 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   }
 
   measure->axis = max_axis_offset(max.x - min.x, max.y - min.y, max.z - min.z);
-  measure->max =  GET_FIELD(&max, 0);
-  measure->min =  GET_FIELD(&min, 0);
+  measure->max =  GET_FIELD(&max, measure->axis);
+  measure->min =  GET_FIELD(&min, measure->axis);
   measure->threshold = (measure->max + measure->min) >> 1;
   // distance from threshold to max + distance from threshold to min / 4
-  measure->precision = ((measure->max - measure->min) - (measure->threshold<<1))>>4;
+  measure->precision = ((measure->max - measure->min) - (measure->threshold<<1))>>5;
 }
 
 int get_steps(int steps) {
   float max_steps, min_steps;
   float secs = (SAMPLE_SIZE / SAMPLE_RATE);
-  max_steps = MAX_STEP_FREQ * secs;
-  min_steps = MIN_STEP_FREQ * secs;
+  max_steps = 100; // = MAX_STEP_FREQ * secs;
+  min_steps = 0;   //MIN_STEP_FREQ * secs;
  return (steps <= max_steps && steps >= min_steps) ? steps : 0;
 }
 
 int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
-  int i, sample_above, above_taken, sample_below, below_taken, result, steps, thresh;
+  int i, last_sample_index, sample_above, above_taken, sample_below, below_taken, result, steps, thresh;
   sample_above = measure->min;
   above_taken  = 0;
   sample_below = measure->max;
   below_taken  = 0;
   thresh = measure->threshold;
   steps = 0;
+	last_sample_index = 0;
 
   for(i = 0; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
@@ -130,10 +132,21 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
       below_taken = 1;
 
     }
-    if(below_taken && above_taken && ((sample_above - sample_below) > measure->precision)) {
-      steps++;
+		
+    if(below_taken && above_taken) {
+			if(((sample_above - sample_below) > measure->precision)) { 
+					if(((i - last_sample_index) >= MIN_SAMPlES_BETWEEN)) {
+						steps++;
+						last_sample_index = i;
+					} else {
+						//mlog_str("Below MIN SAMPLES BETWEEN: \r\n");
+					}
+			} else {
+//				mlog_str("Below Precision: \r\n");
+			}
       above_taken = 0;
       below_taken = 0;
+			
     }
   }
 

@@ -44,6 +44,7 @@
 #include "simple_uart.h"
 #include "acc_driver.h"
 #include "step_counter.h"
+#include "util.h"
 
 #define FIFO_INTERRUPT_PIN_NUMBER (7) 
 
@@ -51,7 +52,8 @@
  * Global data for counting steps  
  **/
 measurements data;
-acc_data_t acc_arr[100];
+const int size =  SAMPLE_SIZE;
+acc_data_t acc_arr[size];
 int collected_data;
 int total_steps = 0;
 
@@ -69,38 +71,6 @@ void gpiote_init(void) {
 }
 
 
-void itoa(int num, uint8_t *buf, int buf_len)
-{
-    int i = 0;
-    int mask = 1000000000;
-
-    if (num == 0) {
-        *buf = '0';
-        *(buf+1) = 0;
-        return;
-    }
-
-    if (num < 0) {
-        num = -num;
-        *buf = '-';
-        i++; 
-    }
-
-    while (mask > num)
-    {
-        mask = mask / 10;
-    }
-
-    while (mask > 0 && i < buf_len-1) {
-        *(buf + i) = num / mask + '0';
-        num = num % mask;
-        mask = mask / 10;
-        i++;
-    }
-
-    *(buf+i) = 0;
-}
-
 void printData(uint8_t *label, int32_t data)
 {
 	uint8_t str_buf[33];
@@ -116,6 +86,55 @@ void print_measure_data(measurements* measure) {
     printData("MIN: ", measure->min);
     printData("THRESHOLD: ", measure->threshold);
     printData("PRECISION: ", measure->precision);
+}
+
+void print_csv(int num_step) {
+	int i;
+	for(i = 0; i < collected_data; i++)
+	{	
+ 		mlog_num(acc_arr[i].x);
+ 		mlog_str(",");
+		mlog_num(acc_arr[i].y);
+		mlog_str(",");
+		mlog_num(acc_arr[i].z);
+		mlog_str(",");
+		mlog_num(data.axis);
+		mlog_str(",");
+//     mlog_num(data.max);
+// 		mlog_str(",");
+//     mlog_num(data.min);
+// 		mlog_str(",");
+    mlog_num(data.threshold);
+		mlog_str(",");
+//     mlog_num(data.precision);
+// 		mlog_str(",");
+		mlog_num(num_step);
+ 		//mlog_str(",");
+// 		mlog_num(total_steps);
+		mlog_str("\r\n");
+	}
+}
+void print_csv_header() {
+		mlog_str("X");
+		mlog_str(",");
+		mlog_str("Y");
+		mlog_str(",");
+		mlog_str("Z");
+		mlog_str(",");
+		mlog_str("AXIS");
+		mlog_str(",");
+//     mlog_str("MAX");
+// 		mlog_str(",");
+//     mlog_str("MIN");
+// 		mlog_str(",");
+    mlog_str("THRESH");
+		mlog_str(",");
+//     mlog_str("PREC");
+// 		mlog_str(",");
+		mlog_str("STEPS");
+// 		mlog_str(",");
+// 		mlog_str("TOTAL_STEPS");
+		mlog_str("\r\n");
 }
 
 void print_acc_data_array(acc_data_t* acc_data_array, int size) {
@@ -151,7 +170,7 @@ int fill_data(acc_data_t* acc_array) {
 */
 void GPIOTE_IRQHandler(void)
 {
-	simple_uart_putstring("Handling\r\n");
+	//simple_uart_putstring("Handling\r\n");
     int steps;
     if(fill_data(acc_arr)) {				
 			  //simple_uart_putstring("Starting Filter\r\n");
@@ -162,9 +181,10 @@ void GPIOTE_IRQHandler(void)
 				//print_measure_data(&data);
         steps = count_steps(&data, acc_arr, SAMPLE_SIZE);
 				total_steps += steps;
-        printData("Total Steps: ", total_steps);
+				
+        //printData("Total Steps: ", total_steps);
     }
-    
+    //print_measure_data(&data);
     // Event causing the interrupt must be cleared
     NRF_GPIOTE->EVENTS_IN[0] = 0;
 }
@@ -179,17 +199,17 @@ void GPIOTE_IRQHandler(void)
 int main(void)
 {
 	NVIC_DisableIRQ(GPIOTE_IRQn);
-  simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
-	simple_uart_putstring("Waiting for Key...\r\n");
+  mlog_init();
+//	mlog_str("Waiting for Key...\r\n");
 	uint8_t cr = simple_uart_get();
-	simple_uart_putstring("Starting after key...\r\n");
+//	simple_uart_putstring("Starting after key...\r\n");
 	gpiote_init();
   NVIC_EnableIRQ(GPIOTE_IRQn);
-    __enable_irq();
+  __enable_irq();
 	acc_init();
 
 
-	
+	print_csv_header();
     while(true)
     {
     //	cr = simple_uart_get();
