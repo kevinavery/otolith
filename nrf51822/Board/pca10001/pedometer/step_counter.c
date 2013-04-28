@@ -34,22 +34,22 @@ void filter(acc_data_t * acc_data_array, int size)
   }
 }
 
-// void print_acc_data_array(acc_data_t* acc_data_array, int size) {
-//   int i;
-//   for(i = 0; i < size; i++) {
-//     printf("x: %d ", GET_FIELD((acc_data_array + i), X));
-//     printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
-//     printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
-//   }
-// }
+void print_acc_data_array(acc_data_t* acc_data_array, int size) {
+  int i;
+  for(i = 0; i < size; i++) {
+    printf("x: %d ", GET_FIELD((acc_data_array + i), X));
+    printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
+    printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
+  }
+}
 
-// void print_measure_data(measurements* measure) {
-//     printf("AXIS: %d ", measure->axis);
-//     printf("MAX: %d ", measure->max);
-//     printf("MIN: %d \n", measure->min);
-//     printf("THRESHOLD: %d \n", measure->threshold);
-//     printf("PRECISION: %d \n", measure->precision);
-// }
+void print_measure_data(measurements* measure) {
+    printf("AXIS: %d ", measure->axis);
+    printf("MAX: %d ", measure->max);
+    printf("MIN: %d \n", measure->min);
+    printf("THRESHOLD: %d \n", measure->threshold);
+    printf("PRECISION: %d \n", measure->precision);
+}
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
   data->x = x;
