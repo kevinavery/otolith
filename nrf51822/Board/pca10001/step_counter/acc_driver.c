@@ -21,6 +21,8 @@ int fifo_init(void)
 
 int int_init(void)
 {
+	// Disable all interupts interrupt
+	write_register(ADXL345_INT_ENABLE, 0x0);
 	// configure interrupts to execute through int 0 pin
 	write_register(ADXL345_INT_MAP, 0x0);
 	// enable watermark interrupt
@@ -28,21 +30,24 @@ int int_init(void)
 	return 0;
 }
 int acc_init() {
-  // Use SPI0, mode0 with lsb shifted as requested  
+  // Use SPI0, mode0 with lsb shifted as requested  PLACE AT TOP	
   volatile uint32_t counter = 0;
-
   spi_ba = spi_master_init(SPI0, SPI_MODE3, false);
-  if (spi_ba == 0)
-  {
+  if (spi_ba == 0) {
     return -1;
   }
-	fifo_init();
-	int_init();	
+	
+	//Put the ADXL345 into StandBy Mode by writing 0x00 
+	// to the POWER_CTL register.
+  write_register(ADXL345_POWER_CTL, 0x00);  //Standby mode 
+
   //Put the ADXL345 into +/- 4G range by writing the value 0x01
   // to the DATA_FORMAT register.
   write_register(ADXL345_DATA_FORMAT, 0x00);
 	// set up sampling rate of 50Hz
 	write_register(ADXL345_BW_RATE, 0x09);
+	fifo_init();
+	int_init();	
   //Put the ADXL345 into Measurement Mode by writing 0x08 
 	// to the POWER_CTL register.
   write_register(ADXL345_POWER_CTL, 0x08);  //Measurement mode 

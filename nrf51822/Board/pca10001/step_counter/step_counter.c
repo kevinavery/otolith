@@ -13,14 +13,14 @@ int min_of(int a, int b)
   return (a < b) ? a : b; 
 }
 
-void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
-  int i;
-  for(i = 0; i < size; i++) {
-    acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-    acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-    acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-  }
-}
+// void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
+//   int i;
+//   for(i = 0; i < size; i++) {
+//     acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+//     acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+//     acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
+//   }
+// }
  
 void filter(acc_data_t * acc_data_array, int size)
 {
@@ -33,22 +33,22 @@ void filter(acc_data_t * acc_data_array, int size)
   }
 }
 
-void print_acc_data_array(acc_data_t* acc_data_array, int size) {
-  int i;
-  for(i = 0; i < size; i++) {
-    printf("x: %d ", GET_FIELD((acc_data_array + i), X));
-    printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
-    printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
-  }
-}
+// void print_acc_data_array(acc_data_t* acc_data_array, int size) {
+//   int i;
+//   for(i = 0; i < size; i++) {
+//     printf("x: %d ", GET_FIELD((acc_data_array + i), X));
+//     printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
+//     printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
+//   }
+// }
 
-void print_measure_data(measurements* measure) {
-    printf("AXIS: %d ", measure->axis);
-    printf("MAX: %d ", measure->max);
-    printf("MIN: %d \n", measure->min);
-    printf("THRESHOLD: %d \n", measure->threshold);
-    printf("PRECISION: %d \n", measure->precision);
-}
+// void print_measure_data(measurements* measure) {
+//     printf("AXIS: %d ", measure->axis);
+//     printf("MAX: %d ", measure->max);
+//     printf("MIN: %d \n", measure->min);
+//     printf("THRESHOLD: %d \n", measure->threshold);
+//     printf("PRECISION: %d \n", measure->precision);
+// }
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
   data->x = x;
@@ -139,14 +139,3 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
 
   return get_steps(steps);
 }
-
-// int main() {
-//   measurements measure;
-//   acc_data_t *acc_arr = malloc(sizeof(acc_data_t) * SAMPLE_SIZE);  
-//   fake_acc_data_array(acc_arr, SAMPLE_SIZE, 5);
-//   filter(acc_arr, SAMPLE_SIZE);
-//   get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-//   count_steps(&measure, acc_arr, SAMPLE_SIZE);
-//   print_measure_data(&measure);
-//   return 0;
-// }

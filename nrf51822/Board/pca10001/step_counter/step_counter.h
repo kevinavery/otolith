@@ -5,9 +5,9 @@
 #define SAMPLE_RATE 50.0
 #define PI 3.14159265
 #define X 0
-#define Y 4
-#define Z 8
-#define GET_FIELD(acc_data_p, field) *((int*)((char*)(acc_data_p) + field))
+#define Y 2
+#define Z 4
+#define GET_FIELD(acc_data_p, field) *((int16_t*)((char*)(acc_data_p) + field))
 #define MAX_STEP_FREQ 5.0
 #define MIN_STEP_FREQ 0.5
 

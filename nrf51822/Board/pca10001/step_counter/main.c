@@ -53,6 +53,7 @@
 measurements data;
 acc_data_t acc_arr[100];
 int collected_data;
+int total_steps = 0;
 
 void gpiote_init(void) {
 
@@ -109,8 +110,25 @@ void printData(uint8_t *label, int32_t data)
 	simple_uart_putstring("\r\n");
 }
 
+void print_measure_data(measurements* measure) {
+    printData("AXIS: ", measure->axis);
+    printData("MAX: ", measure->max);
+    printData("MIN: ", measure->min);
+    printData("THRESHOLD: ", measure->threshold);
+    printData("PRECISION: ", measure->precision);
+}
+
+void print_acc_data_array(acc_data_t* acc_data_array, int size) {
+  int i;
+  for(i = 0; i < size; i++) {
+		printData("x: ", acc_data_array[i].x);
+    printData("y: ", acc_data_array[i].y);
+    printData("z: ", acc_data_array[i].z);
+  }
+}
+
 int fill_data(acc_data_t* acc_array) {
-    simple_uart_putstring("Filling data...");
+    //simple_uart_putstring("Filling data...\r\n");
     int max, temp;
     if(collected_data >= SAMPLE_SIZE) {
         collected_data = 0;
@@ -121,9 +139,10 @@ int fill_data(acc_data_t* acc_array) {
     for(; collected_data < max; collected_data++) {
         update_acc_data(acc_array + collected_data);
     }
+		//printData("collected: ", collected_data);
+		//print_acc_data_array(acc_arr, 1);
     if(collected_data >= SAMPLE_SIZE)
         return 1;
-
     return 0;
 }
 
@@ -132,13 +151,18 @@ int fill_data(acc_data_t* acc_array) {
 */
 void GPIOTE_IRQHandler(void)
 {
+	simple_uart_putstring("Handling\r\n");
     int steps;
-    fill_data(acc_arr);
-    if(collected_data >= SAMPLE_SIZE) {
-        filter(acc_arr, SAMPLE_SIZE);
+    if(fill_data(acc_arr)) {				
+			  //simple_uart_putstring("Starting Filter\r\n");
+				filter(acc_arr, SAMPLE_SIZE);	
+				//simple_uart_putstring("End Filter entering max_min\r\n");
         get_max_min(&data, acc_arr, SAMPLE_SIZE);
+				//simple_uart_putstring("End max_min starting Steps\r\n");
+				//print_measure_data(&data);
         steps = count_steps(&data, acc_arr, SAMPLE_SIZE);
-        printData("Steps: ", steps);
+				total_steps += steps;
+        printData("Total Steps: ", total_steps);
     }
     
     // Event causing the interrupt must be cleared
@@ -154,21 +178,22 @@ void GPIOTE_IRQHandler(void)
  */
 int main(void)
 {
-    simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
-
+	NVIC_DisableIRQ(GPIOTE_IRQn);
+  simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+	simple_uart_putstring("Waiting for Key...\r\n");
 	uint8_t cr = simple_uart_get();
-
+	simple_uart_putstring("Starting after key...\r\n");
 	gpiote_init();
-    NVIC_EnableIRQ(GPIOTE_IRQn);
+  NVIC_EnableIRQ(GPIOTE_IRQn);
     __enable_irq();
 	acc_init();
 
-	//cr = simple_uart_get();
-	simple_uart_putstring("Starting...\r\n");
+
 	
     while(true)
     {
-    	//cr = simple_uart_get();
+    //	cr = simple_uart_get();
+		//	simple_uart_putstring("key...\r\n");
     	//int i;
     	// acc_data_t* acc;
     	// for(i = 0; i < 50; i++){
