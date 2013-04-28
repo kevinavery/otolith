@@ -12,7 +12,7 @@ int total_steps = 0;
 acc_data_t* acc_arr;
 using namespace std;
 
-int total_lines = 0;
+int total_samples = 0;
 int line_num = 0;
 void parse_file(string filename)
 {
@@ -22,12 +22,12 @@ void parse_file(string filename)
 	if(file) 
 	{
 		while(getline(file, line, '\r')) {
-			total_lines++;
+			total_samples++;
 		}
-		std::cout << "total_lines " << total_lines << std::endl;
+		std::cout << "total_samples " << total_samples << std::endl;
 		file.clear();
 		file.seekg(0, file.beg);
-		acc_arr = new acc_data_t[total_lines];
+		acc_arr = new acc_data_t[total_samples];
 		
 		while(getline(file, line, '\r')) {
 			if(line_num > 0) {			
@@ -66,12 +66,24 @@ int main (int argc, char* argv[]) {
 		cout << "Provide file " << endl;
 
 	parse_file(argv[1]);
-	print_acc_data_array(acc_arr, 100);
+	
 	measurements measure;
 	
-	filter(acc_arr, SAMPLE_SIZE);
-	get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-	count_steps(&measure, acc_arr, SAMPLE_SIZE);
-	print_measure_data(&measure);
+    int i;
+    std::cout << "Total Samples: " << total_steps << std::endl;
+    for(i = 0; i< total_samples - SAMPLE_SIZE; i+=SAMPLE_SIZE) {
+		filter((acc_arr + i), SAMPLE_SIZE);
+		//print_acc_data_array((acc_arr + i), SAMPLE_SIZE);
+		get_max_min(&measure, (acc_arr + i), SAMPLE_SIZE);
+		total_steps += count_steps1(&measure, (acc_arr + i), SAMPLE_SIZE);
+		print_measure_data(&measure);
+		
+	}
+	std::cout << "Total Steps: " << total_steps << std::endl;
+	// filter(acc_arr, total_samples - i);
+	// get_max_min(&measure, acc_arr, SAMPLE_SIZE);
+	// count_steps(&measure, acc_arr, SAMPLE_SIZE);
+	// print_measure_data(&measure);
+
 	return 0;
 }

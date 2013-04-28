@@ -44,11 +44,11 @@ void print_acc_data_array(acc_data_t* acc_data_array, int size) {
 }
 
 void print_measure_data(measurements* measure) {
-    printf("AXIS: %d ", measure->axis);
-    printf("MAX: %d ", measure->max);
-    printf("MIN: %d \n", measure->min);
-    printf("THRESHOLD: %d \n", measure->threshold);
-    printf("PRECISION: %d \n", measure->precision);
+    printf("AXIS: %d", measure->axis);
+    printf(" MAX: %d", measure->max);
+    printf(" MIN: %d", measure->min);
+    printf("  THRESHOLD: %d", measure->threshold);
+    printf("  PRECISION: %d\n", measure->precision);
 }
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
@@ -97,14 +97,14 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   measure->min =  GET_FIELD(&min, measure->axis);
   measure->threshold = (measure->max + measure->min) >> 1;
   // distance from threshold to max + distance from threshold to min / 4
-  measure->precision = ((measure->max - measure->min) - (measure->threshold<<1))>>5;
+  measure->precision = abs(((measure->max - measure->min) >> 1));
 }
 
 int get_steps(int steps) {
   float max_steps, min_steps;
   float secs = (SAMPLE_SIZE / SAMPLE_RATE);
-  max_steps = 100; // = MAX_STEP_FREQ * secs;
-  min_steps = 0;   //MIN_STEP_FREQ * secs;
+  max_steps = MAX_STEP_FREQ * secs;
+  min_steps = MIN_STEP_FREQ * secs;
  return (steps <= max_steps && steps >= min_steps) ? steps : 0;
 }
 
@@ -122,31 +122,64 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
     
 
-    if(result > thresh) {
+    if((result > thresh && !above_taken) || (result > sample_above && above_taken)) {
       // take a sample above the thresh
       sample_above = result;
       above_taken = 1;
 
-    } else if((result < thresh) && above_taken) {
+    } else if((result < thresh) && above_taken && (sample_above - result) > measure->precision) {
       sample_below = result;
       below_taken = 1;
 
-    }
+    }// else {
+    //   printf("Below Precision: \r\n");
+    // }
 		
     if(below_taken && above_taken) {
-			if(((sample_above - sample_below) > measure->precision)) { 
+			//if(((sample_above - sample_below) > measure->precision)) { 
 					if(((i - last_sample_index) >= MIN_SAMPlES_BETWEEN)) {
 						steps++;
 						last_sample_index = i;
 					} else {
-						//mlog_str("Below MIN SAMPLES BETWEEN: \r\n");
+						printf("Below MIN SAMPLES BETWEEN: \r\n");
 					}
-			} else {
-//				mlog_str("Below Precision: \r\n");
-			}
+			//}// else {
+			// 	printf("Below Precision: \r\n");
+			// }
       above_taken = 0;
       below_taken = 0;
 			
+    }
+  }
+
+  return get_steps(steps);
+}
+
+int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
+  int sample_new;
+  int sample_old;
+  int result;
+  int interval = 10;
+  int steps = 0;
+  int i;
+  //bool consec = true;
+  sample_new = GET_FIELD((acc_data_array), measure->axis);
+
+  for(i = 1; i < size; i++) {
+    result = GET_FIELD((acc_data_array + i), measure->axis);
+    sample_old = sample_new;
+    interval++;
+    if(abs(sample_new - result) > measure->precision) {
+      sample_new = result;
+    }
+    
+    if((sample_old > measure->threshold) && (sample_new < measure->threshold)) {
+          if((interval >= 10) && (interval <= 100)) {
+            steps++;
+            interval = 0;
+          } else {
+            printf("INVALID interval: %d\r\n", interval);
+          }
     }
   }
 
