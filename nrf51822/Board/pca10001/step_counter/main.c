@@ -179,7 +179,7 @@ void GPIOTE_IRQHandler(void)
         get_max_min(&data, acc_arr, SAMPLE_SIZE);
 				//simple_uart_putstring("End max_min starting Steps\r\n");
 				//print_measure_data(&data);
-        steps = count_steps(&data, acc_arr, SAMPLE_SIZE);
+        steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
 				total_steps += steps;
 				
         //printData("Total Steps: ", total_steps);

@@ -36,5 +36,6 @@ void set_acc_data(acc_data_t *data, int x, int y, int z);
 int max_axis_offset(int dx, int dy, int dz);
 void get_max_min(measurements *measure, acc_data_t *data, int size);
 int count_steps(measurements *measure, acc_data_t *acc_data_array, int size);
+int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size);
 
 #endif
