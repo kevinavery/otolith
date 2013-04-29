@@ -82,6 +82,10 @@ static ble_as_t                              m_as;
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
 
+measurements data;
+const int size =  SAMPLE_SIZE;
+acc_data_t acc_arr[size];
+int collected_data;
 /*****************************************************************************
 * Error Handling Functions
 *****************************************************************************/
@@ -429,16 +433,49 @@ static void buttons_init(void)
 static void steps_init(void)
 {
 
-    // // Configure fifo interrupt pin
-    // nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
+ 
+    acc_init();
+
+    //NVIC_DisableIRQ(GPIOTE_IRQn);
+    data.interval = 10;
+    data.temp_steps = 0;
+    //mlog_init();
+    //mlog_str("Waiting for Key...\r\n");
+    //uint8_t cr = simple_uart_get();
+    //mlog_str("Starting after key...\r\n");
+    gpiote_init();
+    //NVIC_EnableIRQ(GPIOTE_IRQn);
     
-    // // Configure GPIOTE channel 0 to generate event when 
-    // // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
-    // nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    // Configure fifo interrupt pin
+    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
     
-    // // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-    // NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
-    // acc_init();
+    // Configure GPIOTE channel 0 to generate event when 
+    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    
+    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+
+    acc_init();
+}
+
+
+/** GPIOTE interrupt handler.
+* Triggered on motion interrupt pin input low-to-high transition.
+*/
+void GPIOTE_IRQHandler(void)
+{
+  //simple_uart_putstring("Handling\r\n");
+    int steps;
+    if(fill_data(acc_arr)) {        
+        filter(acc_arr, SAMPLE_SIZE); 
+        get_max_min(&data, acc_arr, SAMPLE_SIZE);
+        steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
+        data.total_steps += steps;
+        print_measure_data(&data);
+    }
+    // Event causing the interrupt must be cleared
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
 }
 
 /**@brief Check if this is the first start, or if it was a restart due to a pushed button.

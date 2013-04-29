@@ -92,7 +92,8 @@
 #define ADXL345_READ_ERROR 1 // problem reading accel
 #define ADXL345_BAD_ARG    2 // bad method argument
 
-
+#define FIFO_INTERRUPT_PIN_NUMBER (7)
+ 
 typedef struct
 {
 	int16_t x;

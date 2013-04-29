@@ -4,6 +4,8 @@
 #include "step_counter.h"
 #include "util.h"
 
+
+
 int max_of(int a, int b) {
   return (a > b) ? a : b; 
 }
@@ -160,3 +162,104 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
   }
   return steps;
 }
+
+measurements data;
+const int size =  SAMPLE_SIZE;
+acc_data_t acc_arr[size];
+int collected_data;
+
+void gpiote_init(void) {
+
+    // Configure fifo interrupt pin
+    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
+    
+    // Configure GPIOTE channel 0 to generate event when 
+    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    
+    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+}
+
+void print_measure_data(measurements* measure) {
+    mlog_print("STEPS: " , measure->total_steps);
+    mlog_print(" T_STEPS: " , measure->temp_steps);
+    mlog_print(" AXIS: ", measure->axis);
+    mlog_print(" MAX: ", measure->max);
+    mlog_print(" MIN: ", measure->min);
+    mlog_print(" INTER: ", measure->interval);
+    mlog_print(" THRESH: ", measure->threshold);
+    mlog_print(" PREC: ", measure->precision);
+    mlog_str("\r\n");
+}
+
+void print_csv(int num_step) {
+  int i;
+  for(i = 0; i < collected_data; i++)
+  { 
+    mlog_num(acc_arr[i].x);
+    mlog_str(",");
+    mlog_num(acc_arr[i].y);
+    mlog_str(",");
+    mlog_num(acc_arr[i].z);
+    mlog_str(",");
+    mlog_num(data.axis);
+    mlog_str(",");
+    mlog_num(data.max);
+    mlog_str(",");
+    mlog_num(data.min);
+    mlog_str(",");
+    mlog_num(data.threshold);
+    mlog_str(",");
+    mlog_num(data.precision);
+    mlog_str(",");
+    mlog_num(num_step);
+    mlog_str("\r\n");
+  }
+}
+void print_csv_header() {
+    mlog_str("X");
+    mlog_str(",");
+    mlog_str("Y");
+    mlog_str(",");
+    mlog_str("Z");
+    mlog_str(",");
+    mlog_str("AXIS");
+    mlog_str(",");
+    mlog_str("MAX");
+    mlog_str(",");
+    mlog_str("MIN");
+    mlog_str(",");
+    mlog_str("THRESH");
+    mlog_str(",");
+    mlog_str("PREC");
+    mlog_str(",");
+    mlog_str("STEPS");
+    mlog_str("\r\n");
+}
+
+void print_acc_data_array(acc_data_t* acc_data_array, int size) {
+  int i;
+  for(i = 0; i < size; i++) {
+    mlog_print("x: ", acc_data_array[i].x);
+    mlog_print(" y: ", acc_data_array[i].y);
+    mlog_println(" z: ", acc_data_array[i].z);
+  }
+}
+
+int fill_data(acc_data_t* acc_array) {
+    int max, temp;
+    if(collected_data >= SAMPLE_SIZE) {
+        collected_data = 0;
+    }
+    
+    temp = collected_data + FIFO_SAMPLES;
+    max = (temp < SAMPLE_SIZE) ? temp : SAMPLE_SIZE;
+    for(; collected_data < max; collected_data++) {
+        update_acc_data(acc_array + collected_data);
+    }
+    if(collected_data >= SAMPLE_SIZE)
+        return 1;
+    return 0;
+}
+
