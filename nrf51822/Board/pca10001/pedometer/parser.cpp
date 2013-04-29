@@ -60,6 +60,37 @@ void parse_file(string filename)
 	
 }
 
+int print_csv(measurements *measure, acc_data_t *acc) {
+	ofstream myfile;
+  myfile.open("plot.txt", ios::out | ios::app);
+  
+  for(int i = 0; i < SAMPLE_SIZE; i++) {
+  	myfile << (acc + i)->x << ", ";
+  	myfile << (acc + i)->y << ", ";
+  	myfile << (acc + i)->z << ", ";
+  	myfile << measure->threshold << ", ";
+  	myfile << measure->precision << ", ";
+  	myfile << measure->max << ", ";
+  	myfile << measure->min << ", ";
+  	myfile << total_steps << "\n";
+  }
+
+  myfile.close();
+}
+
+int print_csv_header() {
+	ofstream myfile;
+  myfile.open("plot.txt");
+	myfile << "X, ";
+	myfile << "Y, ";
+	myfile << "Z, ";
+	myfile << "Thresh, ";
+	myfile << "Prec, ";
+	myfile << "Max, ";
+	myfile << "Min, ";
+	myfile << "Total Steps \n";
+  myfile.close();
+}
 
 int main (int argc, char* argv[]) {
 	int temp_steps;
@@ -67,21 +98,19 @@ int main (int argc, char* argv[]) {
 		cout << "Provide file " << endl;
 
 	parse_file(argv[1]);
-	
 	measurements measure;
-	
+	print_csv_header();
     int i;
-    std::cout << "Total Samples: " << total_steps << std::endl;
-    for(i = 0; i< total_samples - SAMPLE_SIZE; i+=SAMPLE_SIZE) {
+    std::cout << "Total Samples: " << total_samples << std::endl;
+  for(i = 0; i< total_samples - SAMPLE_SIZE; i+=SAMPLE_SIZE) {
 		filter((acc_arr + i), SAMPLE_SIZE);
 		print_acc_data_array((acc_arr + i), SAMPLE_SIZE);
 		get_max_min(&measure, (acc_arr + i), SAMPLE_SIZE);
 		print_measure_data(&measure);
 		temp_steps = count_steps1(&measure, (acc_arr + i), SAMPLE_SIZE);
 		std::cout << "Temp Steps: " << temp_steps << std::endl;
-		total_steps += temp_steps;
-		
-		
+		total_steps += temp_steps;				
+		print_csv(&measure, (acc_arr + i));
 	}
 
 	filter((acc_arr + total_samples - 1), (total_samples - i));
