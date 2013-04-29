@@ -13,27 +13,11 @@
 #include <stdint.h>
 #include "ble.h"
 
-/* Alarm Service event type. */
-typedef enum
-{
-    BLE_AS_EVT_ALARM_TIME_UPDATED
-} ble_as_evt_type_t;
-
-/* Alarm Service event. */
-typedef struct
-{
-    ble_as_evt_type_t evt_type;                        /**< Type of event. */
-    union
-    {
-        uint8_t alarm_time;                            /**< New Alarm Time value. */
-    } params;
-} ble_as_evt_t;
-
 // Forward declaration of the ble_as_t type. 
 typedef struct ble_as_s ble_as_t;
 
 /* Alarm Service event handler type. */
-typedef void (*ble_as_evt_handler_t) (ble_as_t * p_as, ble_as_evt_t * p_evt);
+typedef void (*ble_as_evt_handler_t) (uint16_t updated_alarm_time);
 
 /* Alarm Service init structure. */
 typedef struct
@@ -64,7 +48,7 @@ void ble_as_on_ble_evt(ble_as_t * p_as, ble_evt_t * p_ble_evt);
 /*
  * Get current value of the Alarm Time characteristic.
  */
-uint32_t ble_as_alarm_time_get(ble_as_t * p_as, uint8_t * p_alarm_time);
+uint32_t ble_as_alarm_time_get(ble_as_t * p_as, uint16_t * p_alarm_time);
 
 #endif // BLE_AS_H__
 

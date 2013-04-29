@@ -76,6 +76,8 @@ static ble_gap_adv_params_t                  m_adv_params;                      
 static ble_oto_t                             m_oto;       
 static ble_as_t                              m_as;
 
+static app_timer_id_t                        m_user_alarm_timer_id;
+
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
 
@@ -143,42 +145,47 @@ static void bond_manager_error_handler(uint32_t nrf_error)
  */
 static void button_event_handler(uint8_t pin_no)
 {
+	  // step count here for debugging
     static uint8_t cur_step_count = 0;
-	
-	  mlog_str("begin button_event_handler\r\n");
 	
     switch (pin_no)
     {
         case EVAL_BOARD_BUTTON_0:
-					  mlog_str("button 0\r\n");
+					  mlog_str("button 0 pressed\r\n");
             ble_oto_send_step_count(&m_oto, cur_step_count);
 				    cur_step_count = 0;
-				
-				    // DEBUG: print alarm time
-				    uint8_t t;
-				    ble_as_alarm_time_get(&m_as, &t);
-				    mlog_str("Alarm time: ");
-				    mlog_num((int)t);
-				    mlog_str("\r\n");
             break;
             
         case EVAL_BOARD_BUTTON_1:
+					  mlog_str("button 1 pressed\r\n");
 					  cur_step_count += 1;
             break;
             
         default:
             APP_ERROR_HANDLER(pin_no);
     }
-		
-		mlog_str("end button_event_handler\r\n");
 }
 
 
-void on_ble_as_update(ble_as_t * p_as, ble_as_evt_t * p_evt)
+void on_ble_as_update(uint16_t updated_alarm_time)
 {
-	mlog_str("Received alarm time update: ");
-	mlog_num(p_evt->params.alarm_time);
-	mlog_str("\r\n");
+	  mlog_str("=====================\r\n");
+	  mlog_str("Received alarm time update: ");
+	  mlog_num(updated_alarm_time);
+	  mlog_str("\r\n");
+	
+  	uint32_t err_code;
+	  uint32_t alarm_interval = updated_alarm_time * 2000000;
+
+    // Start application timers
+    err_code = app_timer_start(m_user_alarm_timer_id, alarm_interval, NULL);
+    APP_ERROR_CHECK(err_code);
+}
+
+static void user_alarm_timeout_handler(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);
+    mlog_str("User alarm expired!\r\n");
 }
 
 
@@ -192,8 +199,16 @@ void on_ble_as_update(ble_as_t * p_as, ble_as_evt_t * p_evt)
 */
 static void timers_init(void)
 {
+	  uint32_t err_code;
+	
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
+	
+	  err_code = app_timer_create(&m_user_alarm_timer_id,
+                                APP_TIMER_MODE_SINGLE_SHOT,
+                                user_alarm_timeout_handler);
+	  APP_ERROR_CHECK(err_code);
+	
 }
 
 
@@ -242,7 +257,7 @@ static void advertising_init(void)
     ble_uuid_t adv_uuids[] =
     {
 				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE},
-				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE}
+				{BLE_UUID_ALARM_SERVICE,              BLE_UUID_TYPE_BLE}
     };
 
     // Build and set advertising data
@@ -523,6 +538,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     ble_bondmngr_on_ble_evt(p_ble_evt);
 	  ble_oto_on_ble_evt(&m_oto, p_ble_evt);
+	  ble_as_on_ble_evt(&m_as, p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     on_ble_evt(p_ble_evt);
 }
