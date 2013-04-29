@@ -29,6 +29,7 @@
 #include "ble_debug_assert_handler.h"
 #include "ble_oto.h"
 #include "ble_as.h"
+#include "nrf_gpiote.h"
 #include "step_counter.h"
 #include "util.h"
 #include "user_alarm.h"
@@ -81,11 +82,11 @@ static ble_as_t                              m_as;
 
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
-
 measurements data;
 const int size =  SAMPLE_SIZE;
 acc_data_t acc_arr[size];
 int collected_data;
+
 /*****************************************************************************
 * Error Handling Functions
 *****************************************************************************/
@@ -463,20 +464,20 @@ static void steps_init(void)
 /** GPIOTE interrupt handler.
 * Triggered on motion interrupt pin input low-to-high transition.
 */
-void GPIOTE_IRQHandler(void)
-{
-  //simple_uart_putstring("Handling\r\n");
-    int steps;
-    if(fill_data(acc_arr)) {        
-        filter(acc_arr, SAMPLE_SIZE); 
-        get_max_min(&data, acc_arr, SAMPLE_SIZE);
-        steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
-        data.total_steps += steps;
-        print_measure_data(&data);
-    }
-    // Event causing the interrupt must be cleared
-    NRF_GPIOTE->EVENTS_IN[0] = 0;
-}
+// void GPIOTE_IRQHandler(void)
+// {
+//   //simple_uart_putstring("Handling\r\n");
+//     int steps;
+//     if(fill_data(acc_arr)) {        
+//         filter(acc_arr, SAMPLE_SIZE); 
+//         get_max_min(&data, acc_arr, SAMPLE_SIZE);
+//         steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
+//         data.total_steps += steps;
+//         print_measure_data(&data);
+//     }
+//     // Event causing the interrupt must be cleared
+//     NRF_GPIOTE->EVENTS_IN[0] = 0;
+// }
 
 /**@brief Check if this is the first start, or if it was a restart due to a pushed button.
  */

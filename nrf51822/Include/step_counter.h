@@ -1,5 +1,6 @@
 #ifndef STEP_COUNTER_h
 #define STEP_COUNTER_h
+
 #include "acc_driver.h"
 #define SAMPLE_SIZE 50.0
 #define SAMPLE_RATE 50.0
@@ -14,6 +15,8 @@
 #define MIN_CONSECUTIVE_STEPS 4
 #define MIN_PRECISION 30
 
+
+
 typedef struct {
   int threshold;
   int max;
@@ -24,6 +27,7 @@ typedef struct {
 	int total_steps;
 	int temp_steps;
 } measurements;
+
 
 int max_of(int a, int b);
 int min_of(int a, int b);
@@ -36,5 +40,7 @@ int max_axis_offset(int dx, int dy, int dz);
 void get_max_min(measurements *measure, acc_data_t *data, int size);
 int count_steps(measurements *measure, acc_data_t *acc_data_array, int size);
 int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size);
+
+int fill_data(acc_data_t* acc_array);
 
 #endif

@@ -2,9 +2,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include "step_counter.h"
-#include "util.h"
+#include <util.h>
 
-
+extern measurements data;
+extern acc_data_t *acc_arr;
+extern int collected_data;
 
 int max_of(int a, int b) {
   return (a > b) ? a : b; 
@@ -163,23 +165,20 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
   return steps;
 }
 
-measurements data;
-const int size =  SAMPLE_SIZE;
-acc_data_t acc_arr[size];
-int collected_data;
 
-void gpiote_init(void) {
 
-    // Configure fifo interrupt pin
-    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
-    
-    // Configure GPIOTE channel 0 to generate event when 
-    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
-    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
-    
-    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
-}
+// void gpiote_init(void) {
+
+//     // Configure fifo interrupt pin
+//     nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
+//     
+//     // Configure GPIOTE channel 0 to generate event when 
+//     // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+//     nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+//     
+//     // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+//     NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+// }
 
 void print_measure_data(measurements* measure) {
     mlog_print("STEPS: " , measure->total_steps);
