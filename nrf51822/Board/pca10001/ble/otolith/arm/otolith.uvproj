@@ -421,6 +421,11 @@
               <FileType>1</FileType>
               <FilePath>..\util.c</FilePath>
             </File>
+            <File>
+              <FileName>user_alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user_alarm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

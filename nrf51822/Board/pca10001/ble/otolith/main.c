@@ -29,6 +29,7 @@
 #include "ble_oto.h"
 #include "ble_as.h"
 #include "util.h"
+#include "user_alarm.h"
 
                      
 #define BONDMNGR_DELETE_BUTTON_PIN_NO        EVAL_BOARD_BUTTON_1                      /**< Button used for deleting all bonded masters during startup. */
@@ -75,8 +76,6 @@ static ble_gap_adv_params_t                  m_adv_params;                      
 
 static ble_oto_t                             m_oto;       
 static ble_as_t                              m_as;
-
-static app_timer_id_t                        m_user_alarm_timer_id;
 
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
@@ -154,6 +153,9 @@ static void button_event_handler(uint8_t pin_no)
 					  mlog_str("button 0 pressed\r\n");
             ble_oto_send_step_count(&m_oto, cur_step_count);
 				    cur_step_count = 0;
+				
+				// TODO: stop the motor
+				    led_stop();
             break;
             
         case EVAL_BOARD_BUTTON_1:
@@ -174,18 +176,16 @@ void on_ble_as_update(uint16_t updated_alarm_time)
 	  mlog_num(updated_alarm_time);
 	  mlog_str("\r\n");
 	
-  	uint32_t err_code;
-	  uint32_t alarm_interval = updated_alarm_time * 2000000;
-
-    // Start application timers
-    err_code = app_timer_start(m_user_alarm_timer_id, alarm_interval, NULL);
-    APP_ERROR_CHECK(err_code);
+  	user_alarm_set(updated_alarm_time);
 }
 
-static void user_alarm_timeout_handler(void * p_context)
+void on_user_alarm_expire()
 {
-    UNUSED_PARAMETER(p_context);
-    mlog_str("User alarm expired!\r\n");
+	mlog_str("User alarm expired!\r\n");
+	
+	// TODO: 
+	//  Turn on motor until user presses button
+	led_start();
 }
 
 
@@ -204,11 +204,10 @@ static void timers_init(void)
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
 	
-	  err_code = app_timer_create(&m_user_alarm_timer_id,
-                                APP_TIMER_MODE_SINGLE_SHOT,
-                                user_alarm_timeout_handler);
-	  APP_ERROR_CHECK(err_code);
+	  // Init User Alarm with callback
+	  err_code = user_alarm_init(on_user_alarm_expire);
 	
+	  APP_ERROR_CHECK(err_code);
 }
 
 

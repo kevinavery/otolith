@@ -17,6 +17,7 @@
 void mlog_init(void);
 void mlog_str(const char * msg);
 void mlog_num(int num);
+void mlog_println(const char * msg, int num);
 void mlog_print(const char * msg, int num);
 
 void itoa(int num, uint8_t *buf, uint8_t buf_len);

@@ -21,6 +21,7 @@ typedef struct {
   int axis;
   int precision;
 	int interval;
+	int total_steps;
 	int temp_steps;
 } measurements;
 
