@@ -20,11 +20,17 @@ void mlog_num(int num)
 	mlog_str((const char *) buf);
 }
 
-void mlog_print(const char * msg, int num)
+void mlog_println(const char * msg, int num)
 {
 	mlog_str(msg);
 	mlog_num(num);
 	mlog_str("\r\n");
+}
+
+void mlog_print(const char * msg, int num)
+{
+	mlog_str(msg);
+	mlog_num(num);
 }
 
 void itoa(int num, uint8_t *buf, uint8_t buf_len)
