@@ -417,11 +417,6 @@
               <FilePath>..\led.c</FilePath>
             </File>
             <File>
-              <FileName>util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\util.c</FilePath>
-            </File>
-            <File>
               <FileName>user_alarm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user_alarm.c</FilePath>
@@ -510,6 +505,26 @@
               <FileName>simple_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\Source\simple_uart\simple_uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>acc_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\acc\acc_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>step_counter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\step_counter\step_counter.c</FilePath>
+            </File>
+            <File>
+              <FileName>util.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\util\util.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi_master.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\Source\spi_master\spi_master.c</FilePath>
             </File>
           </Files>
         </Group>
