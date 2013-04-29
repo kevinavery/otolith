@@ -120,7 +120,6 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
   for(i = 0; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
     
-
     if((result > thresh && !above_taken) || (result > sample_above && above_taken)) {
       // take a sample above the thresh
       sample_above = result;
@@ -166,6 +165,7 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
 
   for(i = 1; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
+    (acc_data_array + i)->step_location = 0; //csv stuff
     sample_old = sample_new;
     interval++;
     if(abs(sample_new - result) > measure->precision) {
@@ -173,12 +173,12 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
     }
     
     if((sample_old > measure->threshold) && (sample_new < measure->threshold)) {
-          if((interval > 10) && (interval < 100)) {
-            std::cout << "sample_old: " << sample_old << " sample_new: " << sample_new << " interval: " << interval << " axis: " << measure->axis <<std::endl;
+          if((interval > 10) && (interval < 100)) {            
             steps++;
+            (acc_data_array + i)->step_location = result; //csv stuff
             interval = 0;
           } else {
-            printf("INVALID interval: %d\r\n", interval);
+            // printf("INVALID interval: %d\r\n", interval);
           }
     }
   }

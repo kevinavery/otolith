@@ -11,7 +11,6 @@ int collected_data;
 int total_steps = 0;
 acc_data_t* acc_arr;
 using namespace std;
-
 int total_samples = 0;
 int line_num = 0;
 void parse_file(string filename)
@@ -24,7 +23,6 @@ void parse_file(string filename)
 		while(getline(file, line, '\r')) {
 			total_samples++;
 		}
-		std::cout << "total_samples " << total_samples << std::endl;
 		file.clear();
 		file.seekg(0, file.beg);
 		acc_arr = new acc_data_t[total_samples];
@@ -68,10 +66,12 @@ int print_csv(measurements *measure, acc_data_t *acc) {
   	myfile << (acc + i)->x << ", ";
   	myfile << (acc + i)->y << ", ";
   	myfile << (acc + i)->z << ", ";
+  	myfile << (acc + i)->step_location << ", ";
   	myfile << measure->threshold << ", ";
   	myfile << measure->precision << ", ";
   	myfile << measure->max << ", ";
   	myfile << measure->min << ", ";
+  	myfile << measure->axis << ", ";
   	myfile << total_steps << "\n";
   }
 
@@ -84,10 +84,12 @@ int print_csv_header() {
 	myfile << "X, ";
 	myfile << "Y, ";
 	myfile << "Z, ";
+	myfile << "step, ";
 	myfile << "Thresh, ";
 	myfile << "Prec, ";
 	myfile << "Max, ";
 	myfile << "Min, ";
+	myfile << "Axis, ";
 	myfile << "Total Steps \n";
   myfile.close();
 }
@@ -96,28 +98,27 @@ int main (int argc, char* argv[]) {
 	int temp_steps;
 	if(argc < 2)
 		cout << "Provide file " << endl;
+	if(argc > 2) {
+		istringstream buf(argv[2]);
+		buf >> SAMPLE_SIZE;
+	}
+
 
 	parse_file(argv[1]);
 	measurements measure;
 	print_csv_header();
     int i;
-    std::cout << "Total Samples: " << total_samples << std::endl;
   for(i = 0; i< total_samples - SAMPLE_SIZE; i+=SAMPLE_SIZE) {
 		filter((acc_arr + i), SAMPLE_SIZE);
-		print_acc_data_array((acc_arr + i), SAMPLE_SIZE);
 		get_max_min(&measure, (acc_arr + i), SAMPLE_SIZE);
-		print_measure_data(&measure);
 		temp_steps = count_steps1(&measure, (acc_arr + i), SAMPLE_SIZE);
-		std::cout << "Temp Steps: " << temp_steps << std::endl;
 		total_steps += temp_steps;				
-		print_csv(&measure, (acc_arr + i));
 	}
 
 	filter((acc_arr + total_samples - 1), (total_samples - i));
-	print_acc_data_array((acc_arr + total_samples - 1), (total_samples - i));
 	get_max_min(&measure, (acc_arr + total_samples - 1), (total_samples - i));
-	print_measure_data(&measure);
-	total_steps += count_steps(&measure, (acc_arr + total_samples - 1), (total_samples - i));
+	total_steps += count_steps1(&measure, (acc_arr + total_samples - 1), (total_samples - i));
 	std::cout << "Total Steps: " << total_steps << std::endl;
+	// std::cout << "Sample Size: " << SAMPLE_SIZE << std::endl;
 	return 0;
 }
