@@ -12,13 +12,7 @@
 #define MIN_STEP_FREQ 0.5
 #define MIN_SAMPlES_BETWEEN  10 // ((1 / MAX_STEP_FREQ) * SAMPLE_RATE)
 #define MIN_CONSECUTIVE_STEPS 4
-#define MIN_PRECISION 25
-// data array contains an array of structs
-// typedef struct {
-//   int x;
-//   int y;
-//   int z;
-// } acc_data_t;
+#define MIN_PRECISION 30
 
 typedef struct {
   int threshold;

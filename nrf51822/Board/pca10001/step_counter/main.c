@@ -150,7 +150,6 @@ void print_acc_data_array(acc_data_t* acc_data_array, int size) {
 }
 
 int fill_data(acc_data_t* acc_array) {
-    //simple_uart_putstring("Filling data...\r\n");
     int max, temp;
     if(collected_data >= SAMPLE_SIZE) {
         collected_data = 0;
@@ -161,8 +160,6 @@ int fill_data(acc_data_t* acc_array) {
     for(; collected_data < max; collected_data++) {
         update_acc_data(acc_array + collected_data);
     }
-		//printData("collected: ", collected_data);
-		//print_acc_data_array(acc_arr, 1);
     if(collected_data >= SAMPLE_SIZE)
         return 1;
     return 0;
@@ -176,22 +173,14 @@ void GPIOTE_IRQHandler(void)
 	//simple_uart_putstring("Handling\r\n");
     int steps;
     if(fill_data(acc_arr)) {				
-			  //simple_uart_putstring("Starting Filter\r\n");
 				filter(acc_arr, SAMPLE_SIZE);	
-				//simple_uart_putstring("End Filter entering max_min\r\n");
         get_max_min(&data, acc_arr, SAMPLE_SIZE);
-				//simple_uart_putstring("End max_min starting Steps\r\n");
-				//print_measure_data(&data);
         steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
-				//print_csv(steps); 
 				total_steps += steps;
 				printData("STEPS:" , total_steps);
 				mlog_str(" ");
 				print_measure_data(&data);
-				//mlog_print("STEPS:" , total_steps);
-        //printData("Total Steps: ", total_steps);
     }
-    //print_measure_data(&data);
     // Event causing the interrupt must be cleared
     NRF_GPIOTE->EVENTS_IN[0] = 0;
 }
@@ -203,9 +192,8 @@ void GPIOTE_IRQHandler(void)
  * main() function
  * @return 0. int return type required by ANSI/ISO standard.
  */
-int main(void)
+int main(void) 
 {
-	
 	NVIC_DisableIRQ(GPIOTE_IRQn);
 	data.interval = 10;
 	data.temp_steps = 0;
@@ -217,25 +205,7 @@ int main(void)
   NVIC_EnableIRQ(GPIOTE_IRQn);
   __enable_irq();
 	acc_init();
-
-
-	//print_csv_header();
-    while(true)
-    {
-    //	cr = simple_uart_get();
-		//	simple_uart_putstring("key...\r\n");
-    	//int i;
-    	// acc_data_t* acc;
-    	// for(i = 0; i < 50; i++){
-    	// 	 acc = update_acc_data();
-    	// 	 printData("X: ", acc->x);
-    	// }
-        if(cr == 'q' || cr == 'Q')
-        {
-          while(1){}
-        }
-    }
-
+	while(true) {}
 }
 
 /**

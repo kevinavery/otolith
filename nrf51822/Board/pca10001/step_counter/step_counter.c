@@ -12,15 +12,6 @@ int min_of(int a, int b) {
   return (a < b) ? a : b; 
 }
 
-// void fake_acc_data_array(acc_data_t *acc_data_array, int size, float freq) {
-//   int i;
-//   for(i = 0; i < size; i++) {
-//     acc_data_array[i].x = 512.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-//     acc_data_array[i].y = 256.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-//     acc_data_array[i].z = 128.0 * sin((freq/SAMPLE_RATE) * i * 2 * PI);
-//   }
-// }
- 
 void filter(acc_data_t * acc_data_array, int size)
 {
   int i;
@@ -39,23 +30,6 @@ void filter(acc_data_t * acc_data_array, int size)
 	acc_data_array[size- 2].z =  (acc_data_array[size- 2].z + acc_data_array[size- 1].z) / 2;	
 	
 }
-
-// void print_acc_data_array(acc_data_t* acc_data_array, int size) {
-//   int i;
-//   for(i = 0; i < size; i++) {
-//     printf("x: %d ", GET_FIELD((acc_data_array + i), X));
-//     printf("y: %d ", GET_FIELD((acc_data_array + i), Y));
-//     printf("z: %d \n", GET_FIELD((acc_data_array + i), Z));
-//   }
-// }
-
-// void print_measure_data(measurements* measure) {
-//     printf("AXIS: %d", measure->axis);
-//     printf(" MAX: %d", measure->max);
-//     printf(" MIN: %d", measure->min);
-//     printf("  THRESHOLD: %d", measure->threshold);
-//     printf("  PRECISION: %d\n", measure->precision);
-// }
 
 void set_acc_data(acc_data_t *data, int x, int y, int z) {
   data->x = x;
@@ -134,25 +108,16 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
     } else if((result < thresh) && above_taken && (sample_above - result) > measure->precision) {
       sample_below = result;
       below_taken = 1;
-
-    }// else {
-    //   printf("Below Precision: \r\n");
-    // }
-    
+    }
     if(below_taken && above_taken) {
       if(((sample_above - sample_below) > measure->precision)) { 
           if(((i - last_sample_index) >= MIN_SAMPlES_BETWEEN)) {
             steps++;
             last_sample_index = i;
-         } //else {
-        //    printf("Below MIN SAMPLES BETWEEN: \r\n");
-       //   }
-      }// else {
-      //  printf("Below Precision: \r\n");
-      // }
+         } 
+      }
       above_taken = 0;
       below_taken = 0;
-      
     }
   }
 
@@ -165,7 +130,6 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
   int result;
   int i;
 	int steps = 0;
-  //bool consec = true;
   sample_new = GET_FIELD((acc_data_array), measure->axis);
 
   for(i = 0; i < size; i++) {
@@ -181,7 +145,7 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
 						if(measure->temp_steps < MIN_CONSECUTIVE_STEPS)	{
 								measure->temp_steps++;
 						} else if(measure->temp_steps == MIN_CONSECUTIVE_STEPS)	{
-								steps += measure->temp_steps++;
+								steps += ++measure->temp_steps;
 						} else if(measure->temp_steps > MIN_CONSECUTIVE_STEPS) {
 								steps++;
 						}
@@ -194,6 +158,5 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
           }
     }
   }
-
   return steps;
 }
