@@ -11,8 +11,7 @@ int collected_data;
 int total_steps = 0;
 acc_data_t* acc_arr;
 using namespace std;
-
-int total_lines = 0;
+int total_samples = 0;
 int line_num = 0;
 void parse_file(string filename)
 {
@@ -22,12 +21,11 @@ void parse_file(string filename)
 	if(file) 
 	{
 		while(getline(file, line, '\r')) {
-			total_lines++;
+			total_samples++;
 		}
-		std::cout << "total_lines " << total_lines << std::endl;
 		file.clear();
 		file.seekg(0, file.beg);
-		acc_arr = new acc_data_t[total_lines];
+		acc_arr = new acc_data_t[total_samples];
 		
 		while(getline(file, line, '\r')) {
 			if(line_num > 0) {			
@@ -60,18 +58,67 @@ void parse_file(string filename)
 	
 }
 
+int print_csv(measurements *measure, acc_data_t *acc) {
+	ofstream myfile;
+  myfile.open("plot.csv", ios::out | ios::app);
+  
+  for(int i = 0; i < SAMPLE_SIZE; i++) {
+  	myfile << (acc + i)->x << ", ";
+  	myfile << (acc + i)->y << ", ";
+  	myfile << (acc + i)->z << ", ";
+  	myfile << (acc + i)->step_location << ", ";
+  	myfile << measure->threshold << ", ";
+  	myfile << measure->precision << ", ";
+  	myfile << measure->max << ", ";
+  	myfile << measure->min << ", ";
+  	myfile << measure->axis << ", ";
+  	myfile << total_steps << "\n";
+  }
+
+  myfile.close();
+}
+
+int print_csv_header() {
+	ofstream myfile;
+  myfile.open("plot.csv");
+	myfile << "X, ";
+	myfile << "Y, ";
+	myfile << "Z, ";
+	myfile << "step, ";
+	myfile << "Thresh, ";
+	myfile << "Prec, ";
+	myfile << "Max, ";
+	myfile << "Min, ";
+	myfile << "Axis, ";
+	myfile << "Total Steps \n";
+  myfile.close();
+}
 
 int main (int argc, char* argv[]) {
+	int temp_steps;
 	if(argc < 2)
 		cout << "Provide file " << endl;
+	if(argc > 2) {
+		istringstream buf(argv[2]);
+		buf >> SAMPLE_SIZE;
+	}
+
 
 	parse_file(argv[1]);
-	print_acc_data_array(acc_arr, 100);
 	measurements measure;
-	
-	filter(acc_arr, SAMPLE_SIZE);
-	get_max_min(&measure, acc_arr, SAMPLE_SIZE);
-	count_steps(&measure, acc_arr, SAMPLE_SIZE);
-	print_measure_data(&measure);
+	print_csv_header();
+    int i;
+  for(i = 0; i< total_samples - SAMPLE_SIZE; i+=SAMPLE_SIZE) {
+		filter((acc_arr + i), SAMPLE_SIZE);
+		get_max_min(&measure, (acc_arr + i), SAMPLE_SIZE);
+		temp_steps = count_steps1(&measure, (acc_arr + i), SAMPLE_SIZE);
+		total_steps += temp_steps;				
+	}
+
+	filter((acc_arr + total_samples - 1), (total_samples - i));
+	get_max_min(&measure, (acc_arr + total_samples - 1), (total_samples - i));
+	total_steps += count_steps1(&measure, (acc_arr + total_samples - 1), (total_samples - i));
+	std::cout << "Total Steps: " << total_steps << std::endl;
+	// std::cout << "Sample Size: " << SAMPLE_SIZE << std::endl;
 	return 0;
 }

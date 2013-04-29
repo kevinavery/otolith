@@ -1,7 +1,8 @@
 #ifndef STEP_COUNTER_h
 #define STEP_COUNTER_h
 // #include "acc_driver.h"
-#define SAMPLE_SIZE 200.0
+#define SAMPLE_SIZE 50.0
+// int SAMPLE_SIZE = 50;
 #define SAMPLE_RATE 50.0
 #define PI 3.14159265
 #define X 0
@@ -17,6 +18,7 @@ typedef struct {
   int16_t x;
   int16_t y;
   int16_t z;
+  int16_t step_location;
 } acc_data_t;
 
 typedef struct {

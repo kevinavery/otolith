@@ -77,15 +77,17 @@ void printData(uint8_t *label, int32_t data)
 	itoa(data, str_buf, 33);
 	simple_uart_putstring(label);
 	simple_uart_putstring(str_buf);
-	simple_uart_putstring("\r\n");
+	//simple_uart_putstring("\r\n");
 }
 
 void print_measure_data(measurements* measure) {
     printData("AXIS: ", measure->axis);
-    printData("MAX: ", measure->max);
-    printData("MIN: ", measure->min);
-    printData("THRESHOLD: ", measure->threshold);
-    printData("PRECISION: ", measure->precision);
+    printData(" MAX: ", measure->max);
+    printData(" MIN: ", measure->min);
+	  printData(" INTER: ", measure->interval);
+    printData(" THRESH: ", measure->threshold);
+    printData(" PREC: ", measure->precision);
+		simple_uart_putstring("\r\n");
 }
 
 void print_csv(int num_step) {
@@ -123,6 +125,7 @@ void print_csv_header() {
 		mlog_str(",");
 		mlog_str("AXIS");
 		mlog_str(",");
+	
 //     mlog_str("MAX");
 // 		mlog_str(",");
 //     mlog_str("MIN");
@@ -179,9 +182,13 @@ void GPIOTE_IRQHandler(void)
         get_max_min(&data, acc_arr, SAMPLE_SIZE);
 				//simple_uart_putstring("End max_min starting Steps\r\n");
 				//print_measure_data(&data);
-        steps = count_steps(&data, acc_arr, SAMPLE_SIZE);
+        steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
+				//print_csv(steps); 
 				total_steps += steps;
-				
+				printData("STEPS:" , total_steps);
+				mlog_str(" ");
+				print_measure_data(&data);
+				//mlog_print("STEPS:" , total_steps);
         //printData("Total Steps: ", total_steps);
     }
     //print_measure_data(&data);
@@ -198,18 +205,19 @@ void GPIOTE_IRQHandler(void)
  */
 int main(void)
 {
+	
 	NVIC_DisableIRQ(GPIOTE_IRQn);
   mlog_init();
-//	mlog_str("Waiting for Key...\r\n");
+	mlog_str("Waiting for Key...\r\n");
 	uint8_t cr = simple_uart_get();
-//	simple_uart_putstring("Starting after key...\r\n");
+mlog_str("Starting after key...\r\n");
 	gpiote_init();
   NVIC_EnableIRQ(GPIOTE_IRQn);
   __enable_irq();
 	acc_init();
 
 
-	print_csv_header();
+	//print_csv_header();
     while(true)
     {
     //	cr = simple_uart_get();
