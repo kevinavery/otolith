@@ -62,7 +62,7 @@ void parse_file(string filename)
 
 int print_csv(measurements *measure, acc_data_t *acc) {
 	ofstream myfile;
-  myfile.open("plot.txt", ios::out | ios::app);
+  myfile.open("plot.csv", ios::out | ios::app);
   
   for(int i = 0; i < SAMPLE_SIZE; i++) {
   	myfile << (acc + i)->x << ", ";
@@ -80,7 +80,7 @@ int print_csv(measurements *measure, acc_data_t *acc) {
 
 int print_csv_header() {
 	ofstream myfile;
-  myfile.open("plot.txt");
+  myfile.open("plot.csv");
 	myfile << "X, ";
 	myfile << "Y, ";
 	myfile << "Z, ";
