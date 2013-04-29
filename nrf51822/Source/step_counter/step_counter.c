@@ -1,9 +1,14 @@
-#include <stdio.h>
-#include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include "step_counter.h"
-#include <util.h>
+#include "nrf.h"
+#include "nrf_gpio.h"
+#include "nrf_gpiote.h"
 #include "app_gpiote.h"
+#include "simple_uart.h"
+#include "acc_driver.h"
+#include "step_counter.h"
+#include "util.h"
+
 
 
 static measurements data;
@@ -259,7 +264,7 @@ int fill_data(acc_data_t* acc_array) {
 * Triggered on motion interrupt pin input low-to-high transition.
 */
 // void GPIOTE_IRQHandler(void)
-void (*app_gpiote_event_handler_t)(uint32_t event_pins_low_to_high,
+void on_fifo_full_event(uint32_t event_pins_low_to_high,
                                    uint32_t event_pins_high_to_low)
 {
     if ((event_pins_low_to_high >> 7) & 1)
@@ -289,7 +294,7 @@ void step_counter_init()
     //mlog_str("Starting after key...\r\n");
 
     uint32_t mask = 1 << 7;
-    app_gpiote_user_register(&step_counter_gpiote_user, mask, 0, )
+    app_gpiote_user_register(&step_counter_gpiote_user, mask, 0, on_fifo_full_event);
     //NVIC_EnableIRQ(GPIOTE_IRQn);
     
     // Configure fifo interrupt pin
