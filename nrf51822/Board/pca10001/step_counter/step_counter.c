@@ -95,8 +95,8 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   measure->axis = max_axis_offset(max.x - min.x, max.y - min.y, max.z - min.z);
   measure->max =  GET_FIELD(&max, measure->axis);
   measure->min =  GET_FIELD(&min, measure->axis);
-  measure->threshold = (measure->max + measure->min) >> 1;
-  measure->precision = abs(((measure->max - measure->min) >> 4));
+  measure->threshold = (measure->max + measure->min) / 2;
+	measure->precision = max_of(abs((measure->max - measure->min) / 8), 5);
 }
 
 int get_steps(int steps) {
@@ -134,14 +134,14 @@ int count_steps(measurements *measure, acc_data_t *acc_data_array, int size) {
     // }
     
     if(below_taken && above_taken) {
-      //if(((sample_above - sample_below) > measure->precision)) { 
+      if(((sample_above - sample_below) > measure->precision)) { 
           if(((i - last_sample_index) >= MIN_SAMPlES_BETWEEN)) {
             steps++;
             last_sample_index = i;
-          } else {
-            printf("Below MIN SAMPLES BETWEEN: \r\n");
-          }
-      //}// else {
+         } //else {
+        //    printf("Below MIN SAMPLES BETWEEN: \r\n");
+       //   }
+      }// else {
       //  printf("Below Precision: \r\n");
       // }
       above_taken = 0;
@@ -157,31 +157,37 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
   int sample_new;
   int sample_old;
   int result;
-  int interval = 10;
-  int steps = 0;
   int i;
+	int steps = 0;
   //bool consec = true;
   sample_new = GET_FIELD((acc_data_array), measure->axis);
 
   for(i = 1; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
-    (acc_data_array + i)->step_location = 0; //csv stuff
     sample_old = sample_new;
-    interval++;
+    measure->interval++;
     if(abs(sample_new - result) > measure->precision) {
       sample_new = result;
     }
     
     if((sample_old > measure->threshold) && (sample_new < measure->threshold)) {
-          if((interval > 10) && (interval < 100)) {            
-            steps++;
-            (acc_data_array + i)->step_location = result; //csv stuff
-            interval = 0;
+          if((measure->interval > 10) && (measure->interval < 100)) {
+						if(MIN_CONSECUTIVE_STEPS == measure->temp_steps)	{
+								steps += measure->temp_steps++;
+						} else if(MIN_CONSECUTIVE_STEPS < measure->temp_steps) {
+								steps++;
+						} else {
+								measure->temp_steps++;
+						}
+						measure->interval = 0;
           } else {
-            // printf("INVALID interval: %d\r\n", interval);
+							if(measure->interval > 100) {
+								measure->temp_steps = 0;
+								measure->interval = 0;
+							}
           }
     }
   }
 
-  return get_steps(steps);
+  return steps;
 }
