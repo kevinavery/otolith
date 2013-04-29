@@ -96,8 +96,7 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   measure->max =  GET_FIELD(&max, measure->axis);
   measure->min =  GET_FIELD(&min, measure->axis);
   measure->threshold = (measure->max + measure->min) >> 1;
-  // distance from threshold to max + distance from threshold to min / 4
-  measure->precision = abs(((measure->max - measure->min) >> 1));
+  measure->precision = abs(((measure->max - measure->min) >> 4));
 }
 
 int get_steps(int steps) {
@@ -174,7 +173,8 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
     }
     
     if((sample_old > measure->threshold) && (sample_new < measure->threshold)) {
-          if((interval >= 10) && (interval <= 100)) {
+          if((interval > 10) && (interval < 100)) {
+            std::cout << "sample_old: " << sample_old << " sample_new: " << sample_new << " interval: " << interval << " axis: " << measure->axis <<std::endl;
             steps++;
             interval = 0;
           } else {

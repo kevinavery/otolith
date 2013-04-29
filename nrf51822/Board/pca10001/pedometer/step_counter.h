@@ -1,7 +1,7 @@
 #ifndef STEP_COUNTER_h
 #define STEP_COUNTER_h
 // #include "acc_driver.h"
-#define SAMPLE_SIZE 100.0
+#define SAMPLE_SIZE 200.0
 #define SAMPLE_RATE 50.0
 #define PI 3.14159265
 #define X 0
