@@ -425,6 +425,21 @@ static void buttons_init(void)
 }
 
 
+static void steps_init(void)
+{
+
+    // Configure fifo interrupt pin
+    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
+    
+    // Configure GPIOTE channel 0 to generate event when 
+    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    
+    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+    acc_init();
+}
+
 /**@brief Check if this is the first start, or if it was a restart due to a pushed button.
  */
 static bool is_first_start(void)

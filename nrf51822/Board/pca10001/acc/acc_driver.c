@@ -39,15 +39,15 @@ int acc_init() {
   {
     return -1;
   }
-	fifo_init();
-	int_init();	
+  fifo_init();
+  int_init();	
   //Put the ADXL345 into +/- 4G range by writing the value 0x01
   // to the DATA_FORMAT register.
   write_register(ADXL345_DATA_FORMAT, 0x00);
-	// set up sampling rate of 50Hz
-	write_register(ADXL345_BW_RATE, 0x09);
+  // set up sampling rate of 50Hz
+  write_register(ADXL345_BW_RATE, 0x09);
   //Put the ADXL345 into Measurement Mode by writing 0x08 
-	// to the POWER_CTL register.
+  // to the POWER_CTL register.
   write_register(ADXL345_POWER_CTL, 0x08);  //Measurement mode 
 
 	return 0;
