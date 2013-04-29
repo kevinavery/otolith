@@ -10,6 +10,7 @@
 #include "nordic_common.h"
 #include "nrf.h"
 #include "app_error.h"
+#include "acc_driver.h"
 #include "nrf51_bitfields.h"
 #include "ble.h"
 #include "ble_srv_common.h"
@@ -28,6 +29,7 @@
 #include "ble_debug_assert_handler.h"
 #include "ble_oto.h"
 #include "ble_as.h"
+#include "step_counter.h"
 #include "util.h"
 #include "user_alarm.h"
 
@@ -427,16 +429,16 @@ static void buttons_init(void)
 static void steps_init(void)
 {
 
-    // Configure fifo interrupt pin
-    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
+    // // Configure fifo interrupt pin
+    // nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
     
-    // Configure GPIOTE channel 0 to generate event when 
-    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
-    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
+    // // Configure GPIOTE channel 0 to generate event when 
+    // // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
+    // nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
     
-    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
-    acc_init();
+    // // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
+    // NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+    // acc_init();
 }
 
 /**@brief Check if this is the first start, or if it was a restart due to a pushed button.
