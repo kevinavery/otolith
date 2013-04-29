@@ -172,12 +172,12 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
     
     if((sample_old > measure->threshold) && (sample_new < measure->threshold)) {
           if((measure->interval > 10) && (measure->interval < 100)) {
-						if(MIN_CONSECUTIVE_STEPS == measure->temp_steps)	{
-								steps += measure->temp_steps++;
-						} else if(MIN_CONSECUTIVE_STEPS < measure->temp_steps) {
-								steps++;
-						} else {
+						if(measure->temp_steps < MIN_CONSECUTIVE_STEPS)	{
 								measure->temp_steps++;
+						} else if(measure->temp_steps == MIN_CONSECUTIVE_STEPS)	{
+								steps += measure->temp_steps++;
+						} else if(measure->temp_steps > MIN_CONSECUTIVE_STEPS) {
+								steps++;
 						}
 						measure->interval = 0;
           } else {
