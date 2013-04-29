@@ -55,7 +55,6 @@ measurements data;
 const int size =  SAMPLE_SIZE;
 acc_data_t acc_arr[size];
 int collected_data;
-int total_steps = 0;
 
 void gpiote_init(void) {
 
@@ -70,24 +69,16 @@ void gpiote_init(void) {
     NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
 }
 
-
-void printData(uint8_t *label, int32_t data)
-{
-	uint8_t str_buf[33];
-	itoa(data, str_buf, 33);
-	simple_uart_putstring(label);
-	simple_uart_putstring(str_buf);
-	//simple_uart_putstring("\r\n");
-}
-
 void print_measure_data(measurements* measure) {
-    printData("AXIS: ", measure->axis);
-    printData(" MAX: ", measure->max);
-    printData(" MIN: ", measure->min);
-	  printData(" INTER: ", measure->interval);
-    printData(" THRESH: ", measure->threshold);
-    printData(" PREC: ", measure->precision);
-		simple_uart_putstring("\r\n");
+		mlog_print("STEPS: " , measure->total_steps);
+		mlog_print(" T_STEPS: " , measure->temp_steps);
+    mlog_print(" AXIS: ", measure->axis);
+    mlog_print(" MAX: ", measure->max);
+    mlog_print(" MIN: ", measure->min);
+	  mlog_print(" INTER: ", measure->interval);
+    mlog_print(" THRESH: ", measure->threshold);
+    mlog_print(" PREC: ", measure->precision);
+		mlog_str("\r\n");
 }
 
 void print_csv(int num_step) {
@@ -102,17 +93,15 @@ void print_csv(int num_step) {
 		mlog_str(",");
 		mlog_num(data.axis);
 		mlog_str(",");
-//     mlog_num(data.max);
-// 		mlog_str(",");
-//     mlog_num(data.min);
-// 		mlog_str(",");
+    mlog_num(data.max);
+		mlog_str(",");
+    mlog_num(data.min);
+		mlog_str(",");
     mlog_num(data.threshold);
 		mlog_str(",");
-//     mlog_num(data.precision);
-// 		mlog_str(",");
+    mlog_num(data.precision);
+		mlog_str(",");
 		mlog_num(num_step);
- 		//mlog_str(",");
-// 		mlog_num(total_steps);
 		mlog_str("\r\n");
 	}
 }
@@ -125,27 +114,24 @@ void print_csv_header() {
 		mlog_str(",");
 		mlog_str("AXIS");
 		mlog_str(",");
-	
-//     mlog_str("MAX");
-// 		mlog_str(",");
-//     mlog_str("MIN");
-// 		mlog_str(",");
+    mlog_str("MAX");
+		mlog_str(",");
+    mlog_str("MIN");
+		mlog_str(",");
     mlog_str("THRESH");
 		mlog_str(",");
-//     mlog_str("PREC");
-// 		mlog_str(",");
+    mlog_str("PREC");
+		mlog_str(",");
 		mlog_str("STEPS");
-// 		mlog_str(",");
-// 		mlog_str("TOTAL_STEPS");
 		mlog_str("\r\n");
 }
 
 void print_acc_data_array(acc_data_t* acc_data_array, int size) {
   int i;
   for(i = 0; i < size; i++) {
-		printData("x: ", acc_data_array[i].x);
-    printData("y: ", acc_data_array[i].y);
-    printData("z: ", acc_data_array[i].z);
+		mlog_print("x: ", acc_data_array[i].x);
+    mlog_print(" y: ", acc_data_array[i].y);
+    mlog_println(" z: ", acc_data_array[i].z);
   }
 }
 
@@ -176,9 +162,7 @@ void GPIOTE_IRQHandler(void)
 				filter(acc_arr, SAMPLE_SIZE);	
         get_max_min(&data, acc_arr, SAMPLE_SIZE);
         steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
-				total_steps += steps;
-				printData("STEPS:" , total_steps);
-				mlog_str(" ");
+				data.total_steps += steps;
 				print_measure_data(&data);
     }
     // Event causing the interrupt must be cleared
