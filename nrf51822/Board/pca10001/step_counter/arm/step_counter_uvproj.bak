@@ -350,7 +350,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>NRF51,DEBUG_NRF_USER</Define>
               <Undefine></Undefine>
-              <IncludePath>..;..\..\..\..\..\Include;..\..\..\..\..\Include\app_common;..\..\..\..\..\Include\ble;..\..\..\..\..\Include\ble\ble_services;..\..\..\..\..\Include\ble\softdevice</IncludePath>
+              <IncludePath>..;..\..\..\..\Include;..\..\..\..\Include\app_common</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -394,12 +394,12 @@
             <File>
               <FileName>arm_startup_nrf51.s</FileName>
               <FileType>2</FileType>
-              <FilePath>.\..\..\..\..\..\Source\templates\arm\arm_startup_nrf51.s</FilePath>
+              <FilePath>.\..\..\..\..\Source\templates\arm\arm_startup_nrf51.s</FilePath>
             </File>
             <File>
               <FileName>system_nrf51.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\..\..\..\..\..\Source\templates\system_nrf51.c</FilePath>
+              <FilePath>.\..\..\..\..\Source\templates\system_nrf51.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -412,34 +412,14 @@
               <FilePath>.\..\main.c</FilePath>
             </File>
             <File>
-              <FileName>battery.c</FileName>
+              <FileName>acc_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\battery.c</FilePath>
+              <FilePath>..\acc_driver.c</FilePath>
             </File>
             <File>
-              <FileName>led.c</FileName>
+              <FileName>step_counter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\led.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Services</GroupName>
-          <Files>
-            <File>
-              <FileName>ble_dis.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_dis.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_bas.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_bas.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_hrs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_hrs.c</FilePath>
+              <FilePath>..\step_counter.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -447,64 +427,14 @@
           <GroupName>Libraries</GroupName>
           <Files>
             <File>
-              <FileName>ble_conn_params.c</FileName>
+              <FileName>spi_master.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_conn_params.c</FilePath>
+              <FilePath>..\..\..\..\Source\spi_master\spi_master.c</FilePath>
             </File>
             <File>
-              <FileName>ble_advdata.c</FileName>
+              <FileName>simple_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_advdata.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_srv_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_services\ble_srv_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\app_common\app_timer.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_stack_handler.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_stack_handler.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_bondmngr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_bondmngr.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_button.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\app_common\app_button.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_radio_notification.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_radio_notification.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_gpiote.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\app_common\app_gpiote.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_error_log.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_error_log.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_debug_assert_handler.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\Source\ble\ble_debug_assert_handler.c</FilePath>
+              <FilePath>..\..\..\..\Source\simple_uart\simple_uart.c</FilePath>
             </File>
           </Files>
         </Group>
