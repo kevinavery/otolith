@@ -4,13 +4,11 @@
 #include "step_counter.h"
 #include "util.h"
 
-int max_of(int a, int b)
-{
+int max_of(int a, int b) {
   return (a > b) ? a : b; 
 }
 
-int min_of(int a, int b)
-{
+int min_of(int a, int b) {
   return (a < b) ? a : b; 
 }
 
@@ -28,10 +26,18 @@ void filter(acc_data_t * acc_data_array, int size)
   int i;
   for(i =0; i < size - 3; i++)
   {
-    acc_data_array[i].x =  (acc_data_array[i].x + acc_data_array[i + 1].x + acc_data_array[i + 2].x + acc_data_array[i + 3].x) >> 2;
-    acc_data_array[i].y =  (acc_data_array[i].y + acc_data_array[i + 1].y + acc_data_array[i + 2].y + acc_data_array[i + 3].y) >> 2;
-    acc_data_array[i].z =  (acc_data_array[i].z + acc_data_array[i + 1].z + acc_data_array[i + 2].z + acc_data_array[i + 3].z) >> 2;
+    acc_data_array[i].x =  (acc_data_array[i].x + acc_data_array[i + 1].x + acc_data_array[i + 2].x + acc_data_array[i + 3].x) / 4;
+    acc_data_array[i].y =  (acc_data_array[i].y + acc_data_array[i + 1].y + acc_data_array[i + 2].y + acc_data_array[i + 3].y) / 4;
+    acc_data_array[i].z =  (acc_data_array[i].z + acc_data_array[i + 1].z + acc_data_array[i + 2].z + acc_data_array[i + 3].z) / 4;
   }
+	acc_data_array[size- 3].x =  (acc_data_array[size- 3].x + acc_data_array[size- 2].x + acc_data_array[size- 1].x) / 3;
+	acc_data_array[size- 3].y =  (acc_data_array[size- 3].y + acc_data_array[size- 2].y + acc_data_array[size- 1].y) / 3;
+	acc_data_array[size- 3].z =  (acc_data_array[size- 3].z + acc_data_array[size- 2].z + acc_data_array[size- 1].z) / 3;
+	
+	acc_data_array[size- 2].x =  (acc_data_array[size- 2].x + acc_data_array[size- 1].x) / 2;
+	acc_data_array[size- 2].y =  (acc_data_array[size- 2].y + acc_data_array[size- 1].y) / 2;
+	acc_data_array[size- 2].z =  (acc_data_array[size- 2].z + acc_data_array[size- 1].z) / 2;	
+	
 }
 
 // void print_acc_data_array(acc_data_t* acc_data_array, int size) {
@@ -96,7 +102,7 @@ void get_max_min(measurements *measure, acc_data_t *data, int size) {
   measure->max =  GET_FIELD(&max, measure->axis);
   measure->min =  GET_FIELD(&min, measure->axis);
   measure->threshold = (measure->max + measure->min) / 2;
-	measure->precision = max_of(abs((measure->max - measure->min) / 8), 5);
+	measure->precision = max_of(abs((measure->max - measure->min) / 8), MIN_PRECISION);
 }
 
 int get_steps(int steps) {
@@ -162,7 +168,7 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size) {
   //bool consec = true;
   sample_new = GET_FIELD((acc_data_array), measure->axis);
 
-  for(i = 1; i < size; i++) {
+  for(i = 0; i < size; i++) {
     result = GET_FIELD((acc_data_array + i), measure->axis);
     sample_old = sample_new;
     measure->interval++;

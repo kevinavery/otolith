@@ -207,10 +207,12 @@ int main(void)
 {
 	
 	NVIC_DisableIRQ(GPIOTE_IRQn);
+	data.interval = 10;
+	data.temp_steps = 0;
   mlog_init();
 	mlog_str("Waiting for Key...\r\n");
 	uint8_t cr = simple_uart_get();
-mlog_str("Starting after key...\r\n");
+	mlog_str("Starting after key...\r\n");
 	gpiote_init();
   NVIC_EnableIRQ(GPIOTE_IRQn);
   __enable_irq();
