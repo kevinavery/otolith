@@ -11,11 +11,10 @@
 static void on_write(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 {
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
-//  mlog_str("on_write\r\n");
-	
+
     uint16_t alarm_time = (p_evt_write->data[1] << 8) | p_evt_write->data[0];
-	
-		// Call application event handler, passing alarm_time
+
+    // Call application event handler, passing alarm_time
     p_as->evt_handler(alarm_time);
 }
 
@@ -23,7 +22,7 @@ static void on_write(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 void ble_as_on_ble_evt(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 {
 //	mlog_str("ble_as_on_ble_evt\r\n");
-	
+
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GATTS_EVT_WRITE:
@@ -45,7 +44,7 @@ static uint32_t alarm_time_char_add(ble_as_t * p_as)
     ble_uuid_t          ble_uuid;
     ble_gatts_attr_md_t attr_md;
     uint8_t             initial_alarm_time;
-	
+    
 //	mlog_str("alarm_time_char_add\r\n");
     
     memset(&char_md, 0, sizeof(char_md));
@@ -112,18 +111,18 @@ uint32_t ble_as_init(ble_as_t * p_as, const ble_as_init_t * p_as_init)
 
 uint32_t ble_as_alarm_time_get(ble_as_t * p_as, uint16_t * p_alarm_time)
 {
-	  uint32_t err_code;
+    uint32_t err_code;
     uint16_t len = sizeof(uint16_t);
-	  uint8_t buf[len];
+    uint8_t buf[len];
     
     err_code = sd_ble_gatts_value_get(p_as->alarm_time_handles.value_handle, 0, &len, buf);
-	  if (err_code != NRF_SUCCESS)
+    if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
-	
-		// set alarm_time (two byte value)
-	  *p_alarm_time = (buf[1] << 8) | buf[0];
-	
-	  return err_code;
+    
+    // set alarm_time (two byte value)
+    *p_alarm_time = (buf[1] << 8) | buf[0];
+    
+    return err_code;
 }

@@ -170,12 +170,12 @@ static void button_event_handler(uint8_t pin_no)
 
 void on_ble_as_update(uint16_t updated_alarm_time)
 {
-	  mlog_str("=====================\r\n");
-	  mlog_str("Received alarm time update: ");
-	  mlog_num(updated_alarm_time);
-	  mlog_str("\r\n");
+    mlog_str("=====================\r\n");
+    mlog_str("Received alarm time update: ");
+    mlog_num(updated_alarm_time);
+    mlog_str("\r\n");
 	
-  	user_alarm_set(updated_alarm_time);
+    user_alarm_set(updated_alarm_time);
 }
 
 void on_user_alarm_expire()
@@ -198,15 +198,15 @@ void on_user_alarm_expire()
 */
 static void timers_init(void)
 {
-	  uint32_t err_code;
+    uint32_t err_code;
 	
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
 	
-	  // Init User Alarm with callback
-	  err_code = user_alarm_init(on_user_alarm_expire);
-	
-	  APP_ERROR_CHECK(err_code);
+    // Init User Alarm with callback
+    err_code = user_alarm_init(on_user_alarm_expire);
+    
+    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -504,8 +504,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
             err_code = sd_ble_gap_sec_params_reply(m_conn_handle, 
-                                                BLE_GAP_SEC_STATUS_SUCCESS, 
-                                                &m_sec_params);
+                                                   BLE_GAP_SEC_STATUS_SUCCESS, 
+                                                   &m_sec_params);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
@@ -534,8 +534,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     ble_bondmngr_on_ble_evt(p_ble_evt);
-	  ble_oto_on_ble_evt(&m_oto, p_ble_evt);
-	  ble_as_on_ble_evt(&m_as, p_ble_evt);
+    ble_oto_on_ble_evt(&m_oto, p_ble_evt);
+    ble_as_on_ble_evt(&m_as, p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
     on_ble_evt(p_ble_evt);
 }
@@ -551,13 +551,13 @@ int main(void)
 {
     uint32_t err_code;
 		
-	  mlog_init();
+    mlog_init();
     timers_init();
     gpiote_init();
     buttons_init();
     step_counter_init();
 
-	  mlog_str("Starting MAIN...\r\n");
+    mlog_str("Starting MAIN...\r\n");
 	
     if (is_first_start())
     {
