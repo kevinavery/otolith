@@ -4,13 +4,13 @@
  *
  */
 
+
 #include "main.h"
 #include <stdint.h>
 #include <string.h>
 #include "nordic_common.h"
 #include "nrf.h"
 #include "app_error.h"
-#include "acc_driver.h"
 #include "nrf51_bitfields.h"
 #include "ble.h"
 #include "ble_srv_common.h"
@@ -46,7 +46,7 @@
 #define APP_TIMER_MAX_TIMERS                 4                                         /**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE              5                                         /**< Size of timer operation queues. */
 
-#define APP_GPIOTE_MAX_USERS                 1                                         /**< Maximum number of users of the GPIOTE handler. */
+#define APP_GPIOTE_MAX_USERS                 2                                         /**< Maximum number of users of the GPIOTE handler. */
 
 #define BUTTON_DETECTION_DELAY               APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)  /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 
@@ -147,16 +147,12 @@ static void bond_manager_error_handler(uint32_t nrf_error)
  * @param[in]   pin_no   The pin number of the button pressed.
  */
 static void button_event_handler(uint8_t pin_no)
-{
-	  // step count here for debugging
-    static uint8_t cur_step_count = 0;
-	
+{	
     switch (pin_no)
     {
         case EVAL_BOARD_BUTTON_0:
 					  mlog_str("button 0 pressed\r\n");
-            ble_oto_send_step_count(&m_oto, cur_step_count);
-				    cur_step_count = 0;
+            ble_oto_send_step_count(&m_oto, get_step_count());
 				
 				// TODO: stop the motor
 				    led_stop();
@@ -164,7 +160,6 @@ static void button_event_handler(uint8_t pin_no)
             
         case EVAL_BOARD_BUTTON_1:
 					  mlog_str("button 1 pressed\r\n");
-					  cur_step_count += 1;
             break;
             
         default:
@@ -562,7 +557,7 @@ int main(void)
     buttons_init();
     step_counter_init();
 
-	  mlog_str("Starting...\r\n");
+	  mlog_str("Starting MAIN...\r\n");
 	
     if (is_first_start())
     {
