@@ -15,7 +15,7 @@ static uint16_t                  m_remaining_minutes;
 static void minute_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
-
+    
     m_remaining_minutes--;
     
     // if it has expired
@@ -25,7 +25,7 @@ static void minute_timeout_handler(void * p_context)
         // invoke the application event
         if (m_evt_handler)
             m_evt_handler();
-    
+        
         m_remaining_minutes = DAY_IN_MINUTES;
     }
 }
@@ -38,8 +38,8 @@ uint32_t user_alarm_init(user_alarm_evt_handler_t evt_handler)
     
     // Create a repeating alarm that expires every minute
     return app_timer_create(&m_user_alarm_timer_id,
-                            APP_TIMER_MODE_REPEATED,
-                            minute_timeout_handler);
+                          APP_TIMER_MODE_REPEATED,
+                          minute_timeout_handler);
 }
 
 void user_alarm_set(uint16_t minutes_until_expire)

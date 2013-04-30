@@ -11,9 +11,10 @@
 static void on_write(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 {
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
+//  mlog_str("on_write\r\n");
 
     uint16_t alarm_time = (p_evt_write->data[1] << 8) | p_evt_write->data[0];
-
+    
     // Call application event handler, passing alarm_time
     p_as->evt_handler(alarm_time);
 }
@@ -22,7 +23,7 @@ static void on_write(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 void ble_as_on_ble_evt(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 {
 //	mlog_str("ble_as_on_ble_evt\r\n");
-
+    
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GATTS_EVT_WRITE:

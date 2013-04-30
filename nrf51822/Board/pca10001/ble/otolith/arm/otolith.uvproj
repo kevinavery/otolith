@@ -421,6 +421,11 @@
               <FileType>1</FileType>
               <FilePath>..\user_alarm.c</FilePath>
             </File>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

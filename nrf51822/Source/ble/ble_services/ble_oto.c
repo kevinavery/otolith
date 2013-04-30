@@ -121,8 +121,8 @@ static uint32_t oto_char_add(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_ini
     attr_md.vlen       = 0;
     
     memset(&attr_char_value, 0, sizeof(attr_char_value));
-		
-		initial_step_count = p_oto_init->initial_step_count;
+
+    initial_step_count = p_oto_init->initial_step_count;
 
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
@@ -132,7 +132,7 @@ static uint32_t oto_char_add(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_ini
     attr_char_value.p_value      = &initial_step_count;
     
     return sd_ble_gatts_characteristic_add(p_oto->service_handle, 
-		                                       &char_md,
+                                           &char_md,
                                            &attr_char_value,
                                            &p_oto->step_count_handles);
 }
@@ -169,9 +169,8 @@ uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count)
     if (p_oto->conn_handle != BLE_CONN_HANDLE_INVALID)
     {
         ble_gatts_hvx_params_t hvx_params;
-			  uint16_t hvx_len;
-			
-			  hvx_len = sizeof(uint8_t);
+        uint16_t hvx_len;
+        hvx_len = sizeof(uint8_t);
         
         memset(&hvx_params, 0, sizeof(hvx_params));
         

@@ -43,6 +43,8 @@ int count_steps1(measurements *measure, acc_data_t *acc_data_array, int size);
 
 int fill_data(acc_data_t* acc_array);
 
+uint32_t get_step_count(void);
+
 void step_counter_init(void);
 
 #endif

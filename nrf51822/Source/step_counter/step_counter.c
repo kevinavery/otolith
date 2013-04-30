@@ -1,3 +1,4 @@
+
 #include <stdint.h>
 #include <stdlib.h>
 #include "nrf.h"
@@ -11,11 +12,12 @@
 
 
 
-static measurements data;
-static const int size =  SAMPLE_SIZE;
-static acc_data_t acc_arr[size];
-static int collected_data;
+static measurements          data;
+static const int             size =  SAMPLE_SIZE;
+static acc_data_t            acc_arr[size];
+static int                   collected_data;
 
+static uint32_t              steps_since_last_send;
 static app_gpiote_user_id_t  step_counter_gpiote_user;
 
 
@@ -244,72 +246,76 @@ void print_acc_data_array(acc_data_t* acc_data_array, int size) {
   }
 }
 
-int fill_data(acc_data_t* acc_array) {
-    int max, temp;
-    if(collected_data >= SAMPLE_SIZE) {
-        collected_data = 0;
-    }
-    
-    temp = collected_data + FIFO_SAMPLES;
-    max = (temp < SAMPLE_SIZE) ? temp : SAMPLE_SIZE;
-    for(; collected_data < max; collected_data++) {
-        update_acc_data(acc_array + collected_data);
-    }
-    if(collected_data >= SAMPLE_SIZE)
-        return 1;
-    return 0;
+int fill_data(acc_data_t* acc_array) 
+{
+  int max, temp;
+	
+  if(collected_data >= SAMPLE_SIZE) 
+	{
+    collected_data = 0;
+  }
+  
+  temp = collected_data + FIFO_SAMPLES;
+  max = (temp < SAMPLE_SIZE) ? temp : SAMPLE_SIZE;
+	
+  for(; collected_data < max; collected_data++) 
+	{
+    update_acc_data(acc_array + collected_data);
+  }
+	
+  if(collected_data >= SAMPLE_SIZE)
+    return 1;
+	
+  return 0;
 }
 
 /** GPIOTE interrupt handler.
 * Triggered on motion interrupt pin input low-to-high transition.
 */
 // void GPIOTE_IRQHandler(void)
-void on_fifo_full_event(uint32_t event_pins_low_to_high,
-                                   uint32_t event_pins_high_to_low)
+static void on_fifo_full_event(uint32_t event_pins_low_to_high,
+                               uint32_t event_pins_high_to_low)
 {
-    if ((event_pins_low_to_high >> 7) & 1)
-    {
-        //simple_uart_putstring("Handling\r\n");
-        int steps;
-        if(fill_data(acc_arr)) {        
-            filter(acc_arr, SAMPLE_SIZE); 
-            get_max_min(&data, acc_arr, SAMPLE_SIZE);
-            steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
-            data.total_steps += steps;
-            print_measure_data(&data);
-        }
-        // Event causing the interrupt must be cleared
-        NRF_GPIOTE->EVENTS_IN[0] = 0;
+  if ((event_pins_low_to_high >> 7) & 1)
+  {
+    //simple_uart_putstring("Handling\r\n");
+    int steps;
+    if(fill_data(acc_arr)) 
+		{        
+      filter(acc_arr, SAMPLE_SIZE); 
+      get_max_min(&data, acc_arr, SAMPLE_SIZE);
+      steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
+      data.total_steps += steps;
+		  steps_since_last_send += steps;
+      print_measure_data(&data);
     }
+    // Event causing the interrupt must be cleared
+    NRF_GPIOTE->EVENTS_IN[0] = 0;
+  }
+}
+
+uint32_t get_step_count()
+{
+  uint32_t s = steps_since_last_send;
+  steps_since_last_send = 0;
+  return s;
 }
 
 void step_counter_init()
 {
-    //NVIC_DisableIRQ(GPIOTE_IRQn);
-    data.interval = 10;
-    data.temp_steps = 0;
-    //mlog_init();
-    //mlog_str("Waiting for Key...\r\n");
-    //uint8_t cr = simple_uart_get();
-    //mlog_str("Starting after key...\r\n");
+  data.interval = 10;
+  data.temp_steps = 0;
+	steps_since_last_send = 0;
+	
+  // Configure fifo interrupt pin
+  nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
 
-    uint32_t mask = 1 << 7;
-    app_gpiote_user_register(&step_counter_gpiote_user, mask, 0, on_fifo_full_event);
-    //NVIC_EnableIRQ(GPIOTE_IRQn);
-    
-    // Configure fifo interrupt pin
-    nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
-    
-    // Configure GPIOTE channel 0 to generate event when 
-    // MOTION_INTERRUPT_PIN_NUMBER goes from Low to High
-    nrf_gpiote_event_config(0, FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIOTE_POLARITY_LOTOHI);
-    
-    // Enable interrupt for NRF_GPIOTE->EVENTS_IN[0] event
-    NRF_GPIOTE->INTENSET = GPIOTE_INTENSET_IN0_Msk;
+  uint32_t mask = 1 << 7;
+  app_gpiote_user_register(&step_counter_gpiote_user, mask, 0, on_fifo_full_event);
 
-    app_gpiote_user_enable(step_counter_gpiote_user);
+  app_gpiote_user_enable(step_counter_gpiote_user);
 
-    acc_init();
+  acc_init();
 }
 
 

@@ -33,6 +33,7 @@
 #include "step_counter.h"
 #include "util.h"
 #include "user_alarm.h"
+#include "motor.h"
 
                      
 #define BONDMNGR_DELETE_BUTTON_PIN_NO        EVAL_BOARD_BUTTON_1                      /**< Button used for deleting all bonded masters during startup. */
@@ -147,19 +148,19 @@ static void bond_manager_error_handler(uint32_t nrf_error)
  * @param[in]   pin_no   The pin number of the button pressed.
  */
 static void button_event_handler(uint8_t pin_no)
-{	
+{
     switch (pin_no)
     {
         case EVAL_BOARD_BUTTON_0:
-					  mlog_str("button 0 pressed\r\n");
+            mlog_str("button 0 pressed\r\n");
             ble_oto_send_step_count(&m_oto, get_step_count());
-				
-				// TODO: stop the motor
-				    led_stop();
+            
+            motor_off();
+            led_stop();
             break;
             
         case EVAL_BOARD_BUTTON_1:
-					  mlog_str("button 1 pressed\r\n");
+            mlog_str("button 1 pressed\r\n");
             break;
             
         default:
@@ -174,17 +175,18 @@ void on_ble_as_update(uint16_t updated_alarm_time)
     mlog_str("Received alarm time update: ");
     mlog_num(updated_alarm_time);
     mlog_str("\r\n");
-	
+    
     user_alarm_set(updated_alarm_time);
 }
 
 void on_user_alarm_expire()
 {
-	mlog_str("User alarm expired!\r\n");
-	
-	// TODO: 
-	//  Turn on motor until user presses button
-	led_start();
+    mlog_str("User alarm expired!\r\n");
+    
+    // TODO: 
+    //  Turn on motor until user presses button
+    motor_on();
+    led_start();
 }
 
 
@@ -199,10 +201,10 @@ void on_user_alarm_expire()
 static void timers_init(void)
 {
     uint32_t err_code;
-	
+    
     // Initialize timer module
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
-	
+    
     // Init User Alarm with callback
     err_code = user_alarm_init(on_user_alarm_expire);
     
@@ -254,8 +256,8 @@ static void advertising_init(void)
 
     ble_uuid_t adv_uuids[] =
     {
-				{BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE},
-				{BLE_UUID_ALARM_SERVICE,              BLE_UUID_TYPE_BLE}
+        {BLE_UUID_OTOLITH_SERVICE,            BLE_UUID_TYPE_BLE},
+        {BLE_UUID_ALARM_SERVICE,              BLE_UUID_TYPE_BLE}
     };
 
     // Build and set advertising data
@@ -287,7 +289,7 @@ static void services_init(void)
 {
     uint32_t       err_code;
     ble_oto_init_t oto_init;
-	  ble_as_init_t  as_init;
+    ble_as_init_t  as_init;
 
     // Initialize Otolith Service
     memset(&oto_init, 0, sizeof(oto_init));
@@ -302,12 +304,12 @@ static void services_init(void)
 
     err_code = ble_oto_init(&m_oto, &oto_init);
     APP_ERROR_CHECK(err_code);
-	
-	  // Initialize Alarm Service
+    
+    // Initialize Alarm Service
     memset(&as_init, 0, sizeof(as_init));
-	  as_init.evt_handler = on_ble_as_update;
-		
-		err_code = ble_as_init(&m_as, &as_init);
+    as_init.evt_handler = on_ble_as_update;
+    
+    err_code = ble_as_init(&m_as, &as_init);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -504,8 +506,8 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
             err_code = sd_ble_gap_sec_params_reply(m_conn_handle, 
-                                                   BLE_GAP_SEC_STATUS_SUCCESS, 
-                                                   &m_sec_params);
+                                                BLE_GAP_SEC_STATUS_SUCCESS, 
+                                                &m_sec_params);
             break;
 
         case BLE_GAP_EVT_TIMEOUT:
@@ -550,15 +552,16 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 int main(void)
 {
     uint32_t err_code;
-		
+    
     mlog_init();
     timers_init();
     gpiote_init();
     buttons_init();
     step_counter_init();
+    motor_init();
 
     mlog_str("Starting MAIN...\r\n");
-	
+    
     if (is_first_start())
     {
         // The startup was not because of button presses. This is the first start.
