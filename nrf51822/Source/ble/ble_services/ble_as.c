@@ -5,13 +5,22 @@
 #include "ble_srv_common.h"
 #include "util.h"
 
+static bool is_first_write;
 
 /**@brief Write event handler.
  */
 static void on_write(ble_as_t * p_as, ble_evt_t * p_ble_evt)
 {
-    ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
-//  mlog_str("on_write\r\n");
+  mlog_str("on_write\r\n");
+	
+	  // This annoyingly gets called during initialization 
+    if (is_first_write)
+		{
+			is_first_write = false;
+			return;
+		}
+
+  	ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
     uint16_t alarm_time = (p_evt_write->data[1] << 8) | p_evt_write->data[0];
     
@@ -70,7 +79,7 @@ static uint32_t alarm_time_char_add(ble_as_t * p_as)
     attr_md.vlen       = 0;
     
     memset(&attr_char_value, 0, sizeof(attr_char_value));
-    initial_alarm_time = 0; // May want to change this
+    initial_alarm_time = 0;
     
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
@@ -91,6 +100,8 @@ uint32_t ble_as_init(ble_as_t * p_as, const ble_as_init_t * p_as_init)
     uint32_t   err_code;
     ble_uuid_t ble_uuid;
 
+	  is_first_write = true;
+	
     // Initialize service structure
     if (p_as_init->evt_handler == NULL)
     {

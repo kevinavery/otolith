@@ -126,9 +126,9 @@ static uint32_t oto_char_add(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_ini
 
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
-    attr_char_value.init_len     = sizeof(uint8_t);
+    attr_char_value.init_len     = sizeof(uint32_t);
     attr_char_value.init_offs    = 0;
-    attr_char_value.max_len      = sizeof(uint8_t);
+    attr_char_value.max_len      = sizeof(uint32_t);
     attr_char_value.p_value      = &initial_step_count;
     
     return sd_ble_gatts_characteristic_add(p_oto->service_handle, 
@@ -161,7 +161,7 @@ uint32_t ble_oto_init(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_init)
 }
 
 
-uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count)
+uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint32_t step_count)
 {
     uint32_t err_code = NRF_SUCCESS;
     
@@ -170,7 +170,10 @@ uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count)
     {
         ble_gatts_hvx_params_t hvx_params;
         uint16_t hvx_len;
-        hvx_len = sizeof(uint8_t);
+        hvx_len = sizeof(uint32_t);
+			  uint8_t buf[hvx_len];
+			
+			  uint32_encode(step_count, buf);
         
         memset(&hvx_params, 0, sizeof(hvx_params));
         
@@ -178,7 +181,7 @@ uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count)
         hvx_params.type     = BLE_GATT_HVX_NOTIFICATION;
         hvx_params.offset   = 0;
         hvx_params.p_len    = &hvx_len;
-        hvx_params.p_data   = &step_count;
+        hvx_params.p_data   = buf;
         
         err_code = sd_ble_gatts_hvx(p_oto->conn_handle, &hvx_params);
     }

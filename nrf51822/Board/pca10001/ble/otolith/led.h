@@ -40,6 +40,12 @@ void led_start(void);
  */
 void led_stop(void);
 
+
+/* Functions for statically controlling LED1 */
+void led1_init(void);
+void led1_on(void);
+void led1_off(void);
+
 #endif // LED_H__
 
 /** @} */

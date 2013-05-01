@@ -15,17 +15,19 @@ static uint16_t                  m_remaining_minutes;
 static void minute_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
+	
+	mlog_str("minute_timeout_handler");
     
     m_remaining_minutes--;
     
     // if it has expired
     if (!m_remaining_minutes)
     {
-        //mlog_str("User alarm expired!\r\n");
         // invoke the application event
         if (m_evt_handler)
             m_evt_handler();
-        
+				
+        // set it to repeat 24 hours from now
         m_remaining_minutes = DAY_IN_MINUTES;
     }
 }

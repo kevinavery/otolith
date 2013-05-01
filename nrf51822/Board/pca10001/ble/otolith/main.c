@@ -81,6 +81,8 @@ static ble_gap_adv_params_t                  m_adv_params;                      
 static ble_oto_t                             m_oto;       
 static ble_as_t                              m_as;
 
+static bool                                  connected;
+
 static void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
 
@@ -143,6 +145,10 @@ static void bond_manager_error_handler(uint32_t nrf_error)
 }
 
 
+// forward declaration
+static void advertising_start(void);
+
+
 /**@brief Button event handler.
  *
  * @param[in]   pin_no   The pin number of the button pressed.
@@ -153,7 +159,9 @@ static void button_event_handler(uint8_t pin_no)
     {
         case EVAL_BOARD_BUTTON_0:
             mlog_str("button 0 pressed\r\n");
-            ble_oto_send_step_count(&m_oto, get_step_count());
+				    
+				    if (connected)
+              ble_oto_send_step_count(&m_oto, get_step_count());
             
             motor_off();
             led_stop();
@@ -161,6 +169,9 @@ static void button_event_handler(uint8_t pin_no)
             
         case EVAL_BOARD_BUTTON_1:
             mlog_str("button 1 pressed\r\n");
+				
+				    if (!connected)
+				      advertising_start();
             break;
             
         default:
@@ -169,22 +180,21 @@ static void button_event_handler(uint8_t pin_no)
 }
 
 
+/* 
+ * Alarm Service update handler.
+ *
+ * Called when the user has set an alarm remotely.
+ */
 void on_ble_as_update(uint16_t updated_alarm_time)
 {
-    mlog_str("=====================\r\n");
-    mlog_str("Received alarm time update: ");
-    mlog_num(updated_alarm_time);
-    mlog_str("\r\n");
-    
     user_alarm_set(updated_alarm_time);
 }
 
+/*
+ * Called when the user alarm has expired
+ */
 void on_user_alarm_expire()
 {
-    mlog_str("User alarm expired!\r\n");
-    
-    // TODO: 
-    //  Turn on motor until user presses button
     motor_on();
     led_start();
 }
@@ -424,23 +434,6 @@ static void buttons_init(void)
     APP_BUTTON_INIT(buttons, sizeof(buttons) / sizeof(buttons[0]), BUTTON_DETECTION_DELAY, false);
 }
 
-/**@brief Check if this is the first start, or if it was a restart due to a pushed button.
- */
-static bool is_first_start(void)
-{
-    uint32_t err_code;
-    bool     inc_button_pushed;
-    bool     dec_button_pushed;
-    
-    err_code = app_button_is_pushed(EVAL_BOARD_BUTTON_0, &inc_button_pushed);
-    APP_ERROR_CHECK(err_code);
-    
-    err_code = app_button_is_pushed(EVAL_BOARD_BUTTON_1, &dec_button_pushed);
-    APP_ERROR_CHECK(err_code);
-    
-    return (!inc_button_pushed && !dec_button_pushed);
-}
-
 
 /*****************************************************************************
 * Static Start Functions
@@ -456,17 +449,6 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 
     led_start();
-}
-
-
-/**@brief Function to put the chip in System OFF Mode
- */
-static void system_off_mode_enter(void)
-{
-    uint32_t err_code;
-    
-    err_code = sd_power_system_off();
-    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -487,21 +469,26 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     {
         case BLE_GAP_EVT_CONNECTED:
             led_stop();
+				    led1_on();
+				    connected = true;
             
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
             // Start handling button presses
-            err_code = app_button_enable();
+            //err_code = app_button_enable();
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
             // Since we are not in a connection and have not started advertising, store bonds
             err_code = ble_bondmngr_bonded_masters_store();
             APP_ERROR_CHECK(err_code);
+				
+				    led1_off();
+				    connected = false;
 
             // Go to system-off mode, should not return from this function, wakeup will trigger
             // a reset.
-            system_off_mode_enter();
+            //system_off_mode_enter();
             break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
@@ -514,7 +501,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT)
             {
                 led_stop();
-                system_off_mode_enter();
+                //system_off_mode_enter();
             }
             break;
 
@@ -552,26 +539,18 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 int main(void)
 {
     uint32_t err_code;
-    
+     
+	  connected = false;
+	
     mlog_init();
     timers_init();
     gpiote_init();
     buttons_init();
     step_counter_init();
     motor_init();
+	  led1_init();
 
     mlog_str("Starting MAIN...\r\n");
-    
-    if (is_first_start())
-    {
-        // The startup was not because of button presses. This is the first start.
-        // Go into System-Off mode.
-        // NOTE: This register cannot be set directly after ble_stack_init() because the SoftDevice
-        //       will be enabled.
-        GPIO_WAKEUP_BUTTON_CONFIG(EVAL_BOARD_BUTTON_0);
-        GPIO_WAKEUP_BUTTON_CONFIG(EVAL_BOARD_BUTTON_1);
-        NRF_POWER->SYSTEMOFF = 1;
-    }
 
     bond_manager_init();
     ble_stack_init();
@@ -585,7 +564,8 @@ int main(void)
     sec_params_init();
 
     // Actually start advertising
-    advertising_start();
+    //advertising_start();
+		app_button_enable();
 
     // Enter main loop
     for (;;)

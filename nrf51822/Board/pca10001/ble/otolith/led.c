@@ -37,6 +37,9 @@
 #define TIMER_PRESCALER                      9                                         /*!< Prescaler setting for timer. */
 #define CAPTURE_COMPARE_0_VALUE              0x1E84                                    /*!< Capture compare value that corresponds to 250 ms. */
 
+#define LED1_PIN_NO   19
+
+
 /* @brief Timer 1 initialisation function.
  *
  * @details This function will initialise Timer 1 peripheral. This timer is used only to
@@ -118,6 +121,22 @@ void led_stop(void)
     NRF_TIMER1->TASKS_STOP = 1;
 
     nrf_gpio_pin_clear(ADVERTISING_LED_PIN_NO);
+}
+
+
+void led1_init(void)
+{
+	nrf_gpio_cfg_output(LED1_PIN_NO);
+}
+
+void led1_on(void)
+{
+	nrf_gpio_pin_set(LED1_PIN_NO);
+}
+
+void led1_off(void)
+{
+	nrf_gpio_pin_clear(LED1_PIN_NO);
 }
 
 

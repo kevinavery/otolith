@@ -276,18 +276,17 @@ int fill_data(acc_data_t* acc_array)
 static void on_fifo_full_event(uint32_t event_pins_low_to_high,
                                uint32_t event_pins_high_to_low)
 {
-  if ((event_pins_low_to_high >> 7) & 1)
+  if ((event_pins_low_to_high >> FIFO_INTERRUPT_PIN_NUMBER) & 1)
   {
-    //simple_uart_putstring("Handling\r\n");
     int steps;
     if(fill_data(acc_arr)) 
-		{        
+		{
       filter(acc_arr, SAMPLE_SIZE); 
       get_max_min(&data, acc_arr, SAMPLE_SIZE);
       steps = count_steps1(&data, acc_arr, SAMPLE_SIZE);
       data.total_steps += steps;
 		  steps_since_last_send += steps;
-      print_measure_data(&data);
+      //print_measure_data(&data);
     }
     // Event causing the interrupt must be cleared
     NRF_GPIOTE->EVENTS_IN[0] = 0;
@@ -305,12 +304,13 @@ void step_counter_init()
 {
   data.interval = 10;
   data.temp_steps = 0;
+	
 	steps_since_last_send = 0;
 	
   // Configure fifo interrupt pin
   nrf_gpio_cfg_input(FIFO_INTERRUPT_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
 
-  uint32_t mask = 1 << 7;
+  uint32_t mask = 1 << FIFO_INTERRUPT_PIN_NUMBER;
   app_gpiote_user_register(&step_counter_gpiote_user, mask, 0, on_fifo_full_event);
 
   app_gpiote_user_enable(step_counter_gpiote_user);

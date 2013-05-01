@@ -55,7 +55,7 @@ uint32_t ble_oto_init(ble_oto_t * p_oto, const ble_oto_init_t * p_oto_init);
 
 void ble_oto_on_ble_evt(ble_oto_t * p_oto, ble_evt_t * p_ble_evt);
 
-uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint8_t step_count);
+uint32_t ble_oto_send_step_count(ble_oto_t * p_oto, uint32_t step_count);
 
 #endif // BLE_OTO_H__
 
